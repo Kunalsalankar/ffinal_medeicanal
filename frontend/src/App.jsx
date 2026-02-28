@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { runPipeline } from './api.js'
+import VentilatorDashboard from './pages/VentilatorDashboard/Dashboard.jsx'
 
 function tryPrettyJson(text) {
   if (typeof text !== 'string') return null
@@ -70,6 +71,7 @@ function AgentCard({ title, data }) {
 }
 
 export default function App() {
+  const [page, setPage] = useState('pipeline')
   const [userRequest, setUserRequest] = useState('A portable Class-3 Pediatric Ventilator')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -109,9 +111,31 @@ export default function App() {
             <div className="brandTitle">Multi‑Agent Pipeline</div>
             <div className="brandSub">React UI for Gemini agents (prompts + outputs)</div>
           </div>
+
+          <div className="nav">
+            <button
+              className={page === 'pipeline' ? 'navBtn navBtnActive' : 'navBtn'}
+              onClick={() => setPage('pipeline')}
+              type="button"
+            >
+              Pipeline
+            </button>
+            <button
+              className={page === 'dashboard' ? 'navBtn navBtnActive' : 'navBtn'}
+              onClick={() => setPage('dashboard')}
+              type="button"
+            >
+              Ventilator Dashboard
+            </button>
+          </div>
         </div>
       </div>
 
+      {page === 'dashboard' ? (
+        <main className="container containerWide">
+          <VentilatorDashboard />
+        </main>
+      ) : (
       <main className="container">
         <section className="hero">
           <h1>Generate architecture + MATLAB script from a single prompt</h1>
@@ -173,6 +197,7 @@ export default function App() {
           Backend: <code className="inlineCode">POST /api/run</code>
         </footer>
       </main>
+      )}
     </div>
   )
 }

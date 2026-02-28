@@ -194,7 +194,8 @@ def get_cache_file(agent_name: str, user_request: str) -> Path:
     """Generate cache file path based on agent and user request."""
     # Create a simple hash of the user request
     import hashlib
-    request_hash = hashlib.md5(user_request.encode()).hexdigest()[:8]
+    normalized = " ".join((user_request or "").strip().lower().split())
+    request_hash = hashlib.md5(normalized.encode()).hexdigest()[:8]
     return CACHE_DIR / f"{agent_name}_{request_hash}.pkl"
 
 
