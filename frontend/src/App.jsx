@@ -1,11 +1,32 @@
 import React, { useMemo, useState } from 'react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { runPipeline } from './api.js'
+
+function tryPrettyJson(text) {
+  if (typeof text !== 'string') return null
+  const s = text.trim()
+  if (!s) return null
+  if (!(s.startsWith('{') || s.startsWith('['))) return null
+  try {
+    const obj = JSON.parse(s)
+    return JSON.stringify(obj, null, 2)
+  } catch {
+    return null
+  }
+}
 
 function AgentCard({ title, data }) {
   const [open, setOpen] = useState(true)
   const prompt = data?.prompt
   const output = data?.output
   const fromCache = Boolean(data?.from_cache)
+  const type = data?.type
+
+  const promptFormatted = tryPrettyJson(prompt) ?? prompt
+  const outputFormatted = tryPrettyJson(output) ?? output
+
+  const outputIsMarkdown = type === 'markdown'
 
   return (
     <section className="card">
@@ -27,11 +48,19 @@ function AgentCard({ title, data }) {
           <div className="grid">
             <div className="panel">
               <div className="panelTitle">Prompt</div>
-              <pre className="code">{prompt || '—'}</pre>
+              <pre className="code">{promptFormatted || '—'}</pre>
             </div>
             <div className="panel">
               <div className="panelTitle">Output</div>
-              <pre className="code">{output || '—'}</pre>
+              {outputIsMarkdown ? (
+                <div className="md">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {output || ''}
+                  </ReactMarkdown>
+                </div>
+              ) : (
+                <pre className="code">{outputFormatted || '—'}</pre>
+              )}
             </div>
           </div>
         </div>
