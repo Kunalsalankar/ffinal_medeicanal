@@ -18,9 +18,24 @@ export default function PvLoopChart({ title = 'PRESSURE–VOLUME LOOP', data }) 
       </div>
       <div className="vdPanelBody">
         <ResponsiveContainer width="100%" height={240}>
-          <LineChart data={data} margin={{ top: 10, right: 18, left: 6, bottom: 0 }}>
+          <LineChart data={data} margin={{ top: 10, right: 18, left: 6, bottom: 26 }}>
             <CartesianGrid stroke="rgba(15, 23, 42, 0.10)" strokeDasharray="3 6" />
-            <XAxis type="number" dataKey="x" domain={['dataMin', 'dataMax']} hide />
+            <XAxis
+              type="number"
+              dataKey="x"
+              domain={['dataMin', 'dataMax']}
+              stroke="rgba(15, 23, 42, 0.70)"
+              tick={{ fontSize: 12 }}
+              height={36}
+              tickMargin={10}
+              label={{
+                value: 'Pressure (cmH2O)',
+                position: 'insideBottom',
+                offset: -10,
+                fill: 'rgba(15,23,42,0.65)',
+                fontSize: 12
+              }}
+            />
             <YAxis
               type="number"
               dataKey="y"

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { runPipeline } from './api.js'
@@ -17,7 +17,7 @@ function tryPrettyJson(text) {
   }
 }
 
-function AgentCard({ title, data }) {
+function AgentCard({ title, data, onOpenFullscreen }) {
   const [open, setOpen] = useState(true)
   const prompt = data?.prompt
   const output = data?.output
@@ -48,11 +48,43 @@ function AgentCard({ title, data }) {
         <div className="cardBody">
           <div className="grid">
             <div className="panel">
-              <div className="panelTitle">Prompt</div>
+              <div className="panelTitleRow">
+                <div className="panelTitle">Prompt</div>
+                <button
+                  className="panelAction"
+                  type="button"
+                  onClick={() =>
+                    onOpenFullscreen({
+                      title: `${title} — Prompt`,
+                      kind: 'prompt',
+                      content: promptFormatted || '—',
+                      isMarkdown: false
+                    })
+                  }
+                >
+                  Full screen
+                </button>
+              </div>
               <pre className="code">{promptFormatted || '—'}</pre>
             </div>
             <div className="panel">
-              <div className="panelTitle">Output</div>
+              <div className="panelTitleRow">
+                <div className="panelTitle">Output</div>
+                <button
+                  className="panelAction"
+                  type="button"
+                  onClick={() =>
+                    onOpenFullscreen({
+                      title: `${title} — Output`,
+                      kind: 'output',
+                      content: outputFormatted || '—',
+                      isMarkdown: outputIsMarkdown
+                    })
+                  }
+                >
+                  Full screen
+                </button>
+              </div>
               {outputIsMarkdown ? (
                 <div className="md">
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -72,10 +104,22 @@ function AgentCard({ title, data }) {
 
 export default function App() {
   const [page, setPage] = useState('pipeline')
+  const [pptMode, setPptMode] = useState(false)
+  const [fullscreen, setFullscreen] = useState(null)
   const [userRequest, setUserRequest] = useState('A portable Class-3 Pediatric Ventilator')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [result, setResult] = useState(null)
+
+  useEffect(() => {
+    function onKeyDown(e) {
+      if (e.key === 'Escape') setFullscreen(null)
+    }
+    if (fullscreen) {
+      window.addEventListener('keydown', onKeyDown)
+      return () => window.removeEventListener('keydown', onKeyDown)
+    }
+  }, [fullscreen])
 
   const agents = useMemo(() => {
     const a = result?.agents || {}
@@ -127,6 +171,16 @@ export default function App() {
             >
               Ventilator Dashboard
             </button>
+
+            {page === 'pipeline' ? (
+              <button
+                className={pptMode ? 'navBtn navBtnActive' : 'navBtn'}
+                onClick={() => setPptMode(v => !v)}
+                type="button"
+              >
+                PPT Mode
+              </button>
+            ) : null}
           </div>
         </div>
       </div>
@@ -136,7 +190,7 @@ export default function App() {
           <VentilatorDashboard />
         </main>
       ) : (
-      <main className="container">
+      <main className={pptMode ? 'container containerPpt' : 'container'}>
         <section className="hero">
           <h1>Generate architecture + MATLAB script from a single prompt</h1>
           <p>Enter your device idea. The system runs three agents and shows each agent's prompt and output.</p>
@@ -190,7 +244,16 @@ export default function App() {
         ) : null}
 
         <div className="stack">
-          {result ? agents.map(a => <AgentCard key={a.key} title={a.title} data={a.data} />) : null}
+          {result
+            ? agents.map(a => (
+                <AgentCard
+                  key={a.key}
+                  title={a.title}
+                  data={a.data}
+                  onOpenFullscreen={setFullscreen}
+                />
+              ))
+            : null}
         </div>
 
         <footer className="footer">
@@ -198,6 +261,30 @@ export default function App() {
         </footer>
       </main>
       )}
+
+      {fullscreen ? (
+        <div className="fsOverlay" role="dialog" aria-modal="true">
+          <div className="fsModal">
+            <div className="fsHeader">
+              <div className="fsTitle">{fullscreen.title}</div>
+              <button className="fsClose" type="button" onClick={() => setFullscreen(null)}>
+                Close
+              </button>
+            </div>
+            <div className="fsBody">
+              {fullscreen.isMarkdown ? (
+                <div className="md fsContent">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {String(fullscreen.content || '')}
+                  </ReactMarkdown>
+                </div>
+              ) : (
+                <pre className="code fsContent">{String(fullscreen.content || '')}</pre>
+              )}
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   )
 }

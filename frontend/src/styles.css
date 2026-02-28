@@ -38,7 +38,7 @@ body {
     var(--bg);
   color: var(--text);
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-  font-size: 16px;
+  font-size: 17px;
 }
 
 code, pre {
@@ -81,17 +81,72 @@ code, pre {
 .brandTitle {
   font-weight: 700;
   letter-spacing: 0.2px;
+  font-size: 16px;
 }
 
 .brandSub {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 800;
 }
 
 .container {
   max-width: 1100px;
   margin: 0 auto;
   padding: 22px 18px 60px;
+}
+
+.containerPpt {
+  max-width: 1500px;
+  padding: 12px 12px 24px;
+  font-size: 1.2em;
+}
+
+.containerPpt .hero {
+  padding: 6px 2px 10px;
+}
+
+.containerPpt .hero h1 {
+  font-size: 44px;
+}
+
+.containerPpt .hero p {
+  font-size: 20px;
+}
+
+.containerPpt .stack {
+  gap: 12px;
+}
+
+.containerPpt .cardHeader {
+  padding: 10px 12px;
+}
+
+.containerPpt .cardBody {
+  padding: 10px 12px;
+}
+
+.containerPpt .form {
+  padding: 10px 12px;
+}
+
+.containerPpt .formActions {
+  margin-top: 10px;
+}
+
+/* Force prompt/output into 2 columns always in PPT mode */
+.containerPpt .grid {
+  grid-template-columns: 0.95fr 1.05fr;
+}
+
+.containerPpt .code {
+  font-size: 18px;
+  max-height: 760px;
+}
+
+.containerPpt .md {
+  font-size: 19px;
+  max-height: 760px;
 }
 
 .containerWide {
@@ -127,14 +182,14 @@ code, pre {
 
 .hero h1 {
   margin: 0 0 6px;
-  font-size: 34px;
+  font-size: 38px;
   letter-spacing: 0.2px;
 }
 
 .hero p {
   margin: 0;
   color: var(--muted);
-  font-size: 16px;
+  font-size: 18px;
   line-height: 1.6;
 }
 
@@ -168,12 +223,13 @@ code, pre {
 
 .cardTitle {
   margin: 0;
-  font-size: 18px;
+  font-size: 22px;
+  letter-spacing: 0.15px;
 }
 
 .cardSub {
   color: var(--muted);
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .cardBody {
@@ -187,7 +243,7 @@ code, pre {
 .label {
   display: grid;
   gap: 8px;
-  font-size: 14px;
+  font-size: 15px;
   color: var(--muted);
 }
 
@@ -200,7 +256,7 @@ code, pre {
   background: #ffffff;
   color: var(--text);
   outline: none;
-  font-size: 15px;
+  font-size: 17px;
   line-height: 1.55;
 }
 
@@ -224,7 +280,7 @@ code, pre {
   border-radius: 12px;
   cursor: pointer;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .btn:disabled {
@@ -256,7 +312,7 @@ code, pre {
 
 .stack {
   display: grid;
-  gap: 14px;
+  gap: 16px;
   margin-top: 14px;
 }
 
@@ -272,6 +328,12 @@ code, pre {
   }
 }
 
+@media (min-width: 1100px) {
+  .grid {
+    grid-template-columns: 0.9fr 1.1fr;
+  }
+}
+
 .panel {
   border: 1px solid var(--divider);
   background: #ffffff;
@@ -281,10 +343,119 @@ code, pre {
 
 .panelTitle {
   padding: 10px 12px;
-  font-size: 13px;
-  color: var(--muted);
+  font-size: 14px;
+  color: rgba(15, 23, 42, 0.68);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   border-bottom: 1px solid var(--divider);
   background: var(--chip_bg);
+}
+
+.panelTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--divider);
+  background: var(--chip_bg);
+}
+
+.panelTitleRow .panelTitle {
+  padding: 0;
+  border-bottom: none;
+  background: transparent;
+}
+
+.panelAction {
+  border: 1px solid rgba(14, 165, 233, 0.35);
+  background: rgba(255, 255, 255, 0.9);
+  color: rgba(15, 23, 42, 0.90);
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.panelAction:hover {
+  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.12);
+}
+
+.panelTitleRow + .code,
+.panelTitleRow + .md {
+  padding-top: 14px;
+}
+
+.fsOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.58);
+  backdrop-filter: blur(8px);
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+}
+
+.fsModal {
+  width: min(1400px, 96vw);
+  height: min(92vh, 920px);
+  background: #ffffff;
+  border-radius: 18px;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+.fsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--divider);
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.14), rgba(34, 197, 94, 0.10));
+}
+
+.fsTitle {
+  font-weight: 1000;
+  font-size: 18px;
+  letter-spacing: 0.2px;
+}
+
+.fsClose {
+  border: 1px solid rgba(15, 23, 42, 0.18);
+  background: rgba(255, 255, 255, 0.9);
+  color: rgba(15, 23, 42, 0.92);
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.fsBody {
+  padding: 0;
+  overflow: hidden;
+}
+
+.fsContent {
+  max-height: none;
+  height: 100%;
+  overflow: auto;
+  font-size: 18px;
+  line-height: 1.75;
+}
+
+.fsContent.code {
+  font-size: 18px;
+}
+
+.fsContent.md {
+  font-size: 19px;
 }
 
 .code {
@@ -293,18 +464,18 @@ code, pre {
   white-space: pre-wrap;
   word-break: break-word;
   line-height: 1.65;
-  font-size: 14px;
+  font-size: 16px;
   background: #ffffff;
-  max-height: 520px;
+  max-height: 640px;
   overflow: auto;
 }
 
 .md {
   padding: 14px;
-  max-height: 520px;
+  max-height: 640px;
   overflow: auto;
-  font-size: 15px;
-  line-height: 1.7;
+  font-size: 17px;
+  line-height: 1.75;
 }
 
 .md :first-child {
@@ -317,8 +488,8 @@ code, pre {
 }
 
 .md h1 { font-size: 22px; }
-.md h2 { font-size: 18px; }
-.md h3 { font-size: 16px; }
+.md h2 { font-size: 20px; }
+.md h3 { font-size: 18px; }
 
 .md p {
   margin: 8px 0;
@@ -367,13 +538,13 @@ code, pre {
 
 .md thead th {
   background: var(--chip_bg);
-  font-size: 13px;
+  font-size: 14px;
   color: var(--muted);
   font-weight: 700;
 }
 
 .md tbody td {
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .alert {
@@ -550,7 +721,19 @@ code, pre {
 
 /* prevent long words like NORMAL from overflowing in smaller cards */
 .vdTopGrid .vdCard:last-child .vdCardValue {
-  font-size: 40px;
+  font-size: 32px;
+  white-space: nowrap;
+  word-break: normal;
+  overflow-wrap: normal;
+}
+
+.vdTopGrid .vdCard:last-child {
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.vdTopGrid .vdCard:last-child .vdCardValueRow {
+  gap: 8px;
 }
 
 .vdCardUnit {
