@@ -16,10 +16,43 @@ function makeWaveform({ phase, amplitude, baseline, freq, points = 120 }) {
   return data
 }
 
+function ScoreRing({ value }) {
+  const v = Math.max(0, Math.min(100, Number(value) || 0))
+  return (
+    <div className="vdScoreRing" style={{ '--vdScore': `${v}%` }}>
+      <div className="vdScoreValue">{v}%</div>
+      <div className="vdScoreLabel">Health</div>
+    </div>
+  )
+}
+
+function ProgressBar({ value, tone = 'blue' }) {
+  const v = Math.max(0, Math.min(100, Number(value) || 0))
+  return (
+    <div className={`vdProg vdProg--${tone}`}>
+      <div className="vdProgBar" style={{ width: `${v}%` }} />
+    </div>
+  )
+}
+
+function StatusBadge({ label, tone }) {
+  return <span className={`vdBadge vdBadge--${tone}`}>{label}</span>
+}
+
+function SectionTitle({ children, right }) {
+  return (
+    <div className="vdReportTitleRow">
+      <div className="vdReportTitle">{children}</div>
+      {right ? <div className="vdReportTitleRight">{right}</div> : null}
+    </div>
+  )
+}
+
 export default function Dashboard() {
   const [tick, setTick] = useState(0)
   const [simPulse, setSimPulse] = useState(0)
   const [whatIf, setWhatIf] = useState({ compliance: 25, resistance: 10, leak: 0 })
+  const [activeView, setActiveView] = useState('dashboard')
 
   useEffect(() => {
     const id = setInterval(() => setTick(t => t + 1), 350)
@@ -101,9 +134,146 @@ export default function Dashboard() {
     { name: 'APNEA', state: 'ok' }
   ]
 
+  const report = useMemo(() => {
+    const now = new Date()
+    const date = now.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: '2-digit' })
+
+    const reqs = [
+      {
+        requirement: 'Inspiratory Pressure Tracking',
+        target: '≤ ±2 cmH2O',
+        measured: '±1.1 cmH2O',
+        status: 'PASS',
+        evidence: 'Test-PR-012'
+      },
+      {
+        requirement: 'PEEP Stability',
+        target: '±1 cmH2O',
+        measured: '±0.6 cmH2O',
+        status: 'PASS',
+        evidence: 'Test-PR-021'
+      },
+      {
+        requirement: 'Alarm Response Time',
+        target: '≤ 500 ms',
+        measured: '420 ms',
+        status: 'PASS',
+        evidence: 'Bench-AL-004'
+      },
+      {
+        requirement: 'Leak Compensation',
+        target: '0–20%',
+        measured: '0–18%',
+        status: 'UNDER REVIEW',
+        evidence: 'Sim-LK-008'
+      }
+    ]
+
+    const complianceCards = [
+      { name: 'ISO 60601-1', coverage: 92, open: 4, status: 'Validated' },
+      { name: 'ISO 14971', coverage: 88, open: 7, status: 'Under Review' },
+      { name: 'ISO 62366', coverage: 85, open: 5, status: 'Under Review' },
+      { name: 'IEC 60601-1-8', coverage: 79, open: 9, status: 'Critical' }
+    ]
+
+    const hazards = [
+      { hazard: 'Over-pressure event', severity: 'Critical', mitigation: 'Pressure relief + software limit', residual: 'Low', status: 'Closed' },
+      { hazard: 'Power failure', severity: 'High', mitigation: 'Battery + alarm + safe state', residual: 'Medium', status: 'Open' },
+      { hazard: 'Sensor drift', severity: 'Medium', mitigation: 'Calibration + plausibility checks', residual: 'Low', status: 'Closed' }
+    ]
+
+    const faults = [
+      { scenario: 'Flow sensor stuck-at', expected: 'Detect + degrade control', observed: 'Detected + fallback', status: 'PASS' },
+      { scenario: 'Valve latency +80ms', expected: 'Maintain PIP within limit', observed: 'PIP +1.2 cmH2O', status: 'PASS' },
+      { scenario: 'O2 supply drop', expected: 'Trigger alarm + hold safe FiO2', observed: 'Alarm triggered', status: 'PASS' }
+    ]
+
+    const kpis = [
+      { label: 'Design Time Reduction', value: 42 },
+      { label: 'Cost Reduction', value: 18 },
+      { label: 'Model Accuracy', value: 92 },
+      { label: 'System Latency', value: 74 },
+      { label: 'Scalability Index', value: 81 }
+    ]
+
+    const architecture = {
+      totalComponents: 28,
+      interfacesValidated: true,
+      integrationErrors: 2,
+      systems: [
+        {
+          name: 'Gas Delivery & Blending',
+          status: 'Good',
+          children: [
+            { name: 'Proportional Valve', status: 'Good' },
+            { name: 'Flow Sensor', status: 'Warning' },
+            { name: 'Mixer', status: 'Good' }
+          ]
+        },
+        {
+          name: 'Control & Safety',
+          status: 'Good',
+          children: [
+            { name: 'Alarm Manager', status: 'Good' },
+            { name: 'Watchdog', status: 'Good' },
+            { name: 'Closed-loop Controller', status: 'Good' }
+          ]
+        }
+      ]
+    }
+
+    return {
+      title: 'Medical Device Design Health Report',
+      deviceName: 'ICU Mechanical Ventilator (Digital Twin)',
+      version: 'v2.4',
+      date,
+      score: 92,
+      status: 'Validated',
+      summary: {
+        description:
+          'Advanced ventilator system leveraging digital twin technology for real-time validation of respiratory mechanics and safety control loops.',
+        class: 'Class III',
+        fidelity: 'High (90%+)',
+        complianceCoverage: 88,
+        riskIndex: 'Low'
+      },
+      requirementCoverage: 94,
+      reqs,
+      complianceCards,
+      risk: {
+        hazardsTotal: 23,
+        highRisk: 3,
+        residualSummary: 'Residual risks reduced to acceptable levels for current prototype phase.',
+        riskScore: 18,
+        hazards
+      },
+      fault: {
+        coverage: 86,
+        rows: faults
+      },
+      kpis,
+      architecture
+    }
+  }, [])
+
   function runSimulation() {
     setSimPulse(3)
     window.setTimeout(() => setSimPulse(0), 1200)
+  }
+
+  function downloadPdf() {
+    const prevTitle = document.title
+    const suffix =
+      activeView === 'dashboard'
+        ? 'Dashboard'
+        : activeView === 'whatif'
+          ? 'What-If Analysis'
+          : 'Health Report'
+    document.title = `Ventilator - ${suffix}`
+    window.setTimeout(() => {
+      window.print()
+      document.title = prevTitle
+    }, 50)
   }
 
   return (
@@ -112,43 +282,377 @@ export default function Dashboard() {
         <div className="vdHeaderTitle">ICU Ventilator — Digital Twin Dashboard</div>
       </div>
 
-      <div className="vdTopGrid">
-        <ParameterCard label="MODE" value="AC/PC" unit="" accent="primary" />
-        <ParameterCard label="Vt" value="650" unit="mL" accent="primary" />
-        <ParameterCard label="RR" value="22" unit="bpm" accent="primary" />
-        <ParameterCard label="PIP" value="26" unit="cmH2O" accent="warning" />
-        <ParameterCard label="Ve" value="9.8" unit="L/min" accent="primary" />
-        <ParameterCard label="PEEP" value="5" unit="cmH2O" accent="primary" />
-        <ParameterCard label="FiO2" value="45" unit="%" accent="primary" />
-        <ParameterCard label="System" value="NORMAL" unit="" accent="success" subLabel="System Status" />
+      <div className="vdTabs">
+        <button
+          type="button"
+          className={`vdTab ${activeView === 'dashboard' ? 'vdTab--active' : ''}`}
+          onClick={() => setActiveView('dashboard')}
+        >
+          Dashboard
+        </button>
+        <button
+          type="button"
+          className={`vdTab ${activeView === 'whatif' ? 'vdTab--active' : ''}`}
+          onClick={() => setActiveView('whatif')}
+        >
+          What-If Analysis
+        </button>
+        <button
+          type="button"
+          className={`vdTab ${activeView === 'report' ? 'vdTab--active' : ''}`}
+          onClick={() => setActiveView('report')}
+        >
+          Health Report
+        </button>
       </div>
 
-      <div className="vdMainGrid">
-        <div className="vdCharts">
-          <div className="vdChartsRow">
-            <WaveformChart
-              title="AIRWAY PRESSURE vs TIME"
-              data={pressureData}
-              yLabel="Pressure (cmH2O)"
-              lineColor="#22d3ee"
-            />
-            <WaveformChart
-              title="AIR FLOW RATE vs TIME"
-              data={flowData}
-              yLabel="Flow (L/min)"
-              lineColor="#a78bfa"
-            />
+      <div className="vdActions vdNoPrint">
+        <button type="button" className="vdPdfBtn" onClick={downloadPdf}>
+          Download PDF
+        </button>
+      </div>
+
+      {activeView === 'dashboard' ? (
+        <>
+          <div className="vdTopGrid">
+            <ParameterCard label="MODE" value="AC/PC" unit="" accent="primary" />
+            <ParameterCard label="Vt" value="650" unit="mL" accent="primary" />
+            <ParameterCard label="RR" value="22" unit="bpm" accent="primary" />
+            <ParameterCard label="PIP" value="26" unit="cmH2O" accent="warning" />
+            <ParameterCard label="Ve" value="9.8" unit="L/min" accent="primary" />
+            <ParameterCard label="PEEP" value="5" unit="cmH2O" accent="primary" />
+            <ParameterCard label="FiO2" value="45" unit="%" accent="primary" />
+            <ParameterCard label="System" value="NORMAL" unit="" accent="success" subLabel="System Status" />
           </div>
 
-          <div className="vdPvLoop">
-            <PvLoopChart data={pvLoop} />
+          <div className="vdMainGrid">
+            <div className="vdCharts">
+              <div className="vdChartsRow">
+                <WaveformChart
+                  title="AIRWAY PRESSURE vs TIME"
+                  data={pressureData}
+                  yLabel="Pressure (cmH2O)"
+                  lineColor="#22d3ee"
+                />
+                <WaveformChart
+                  title="AIR FLOW RATE vs TIME"
+                  data={flowData}
+                  yLabel="Flow (L/min)"
+                  lineColor="#a78bfa"
+                />
+              </div>
+
+              <div className="vdPvLoop">
+                <PvLoopChart data={pvLoop} />
+              </div>
+            </div>
+
+            <AlarmPanel settings={settings} alarms={alarms} />
+          </div>
+        </>
+      ) : null}
+
+      {activeView === 'whatif' ? (
+        <SimulationPanel state={whatIf} setState={setWhatIf} predicted={predicted} onRun={runSimulation} />
+      ) : null}
+
+      {activeView === 'report' ? (
+        <div className="vdReport">
+          <div className="vdReportHeader">
+            <div className="vdReportHeaderLeft">
+              <div className="vdReportH1">{report.title}</div>
+              <div className="vdReportMeta">
+                <div className="vdReportMetaItem">
+                  <span className="vdReportMetaKey">Device</span>
+                  <span className="vdReportMetaVal">{report.deviceName}</span>
+                </div>
+                <div className="vdReportMetaItem">
+                  <span className="vdReportMetaKey">Version</span>
+                  <span className="vdReportMetaVal">{report.version}</span>
+                </div>
+                <div className="vdReportMetaItem">
+                  <span className="vdReportMetaKey">Date</span>
+                  <span className="vdReportMetaVal">{report.date}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="vdReportHeaderRight">
+              <ScoreRing value={report.score} />
+              <div className="vdReportStatus">
+                <div className="vdReportStatusLabel">Status</div>
+                <StatusBadge label={report.status} tone={report.status === 'Validated' ? 'ok' : 'warn'} />
+                <div className="vdReportStatusSub">Overall Health Score</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="vdReportGrid">
+            <div className="vdReportCard">
+              <SectionTitle>Executive Summary</SectionTitle>
+              <div className="vdReportText">{report.summary.description}</div>
+              <div className="vdReportKVs">
+                <div className="vdReportKV">
+                  <div className="vdReportKVKey">Device Classification</div>
+                  <div className="vdReportKVVal">{report.summary.class}</div>
+                </div>
+                <div className="vdReportKV">
+                  <div className="vdReportKVKey">Simulation Fidelity</div>
+                  <div className="vdReportKVVal">{report.summary.fidelity}</div>
+                </div>
+                <div className="vdReportKV">
+                  <div className="vdReportKVKey">Compliance Coverage</div>
+                  <div className="vdReportKVVal">{report.summary.complianceCoverage}%</div>
+                </div>
+                <div className="vdReportKV">
+                  <div className="vdReportKVKey">Risk Index</div>
+                  <div className="vdReportKVVal">{report.summary.riskIndex}</div>
+                </div>
+              </div>
+            </div>
+
+          <div className="vdReportCard">
+            <SectionTitle
+              right={
+                <div className="vdInlineRight">
+                  <div className="vdInlineKey">Requirement Coverage</div>
+                  <div className="vdInlineVal">{report.requirementCoverage}%</div>
+                </div>
+              }
+            >
+              Functional Requirements Status
+            </SectionTitle>
+            <ProgressBar value={report.requirementCoverage} tone="blue" />
+            <div className="vdTableWrap">
+              <table className="vdTable">
+                <thead>
+                  <tr>
+                    <th>Requirement</th>
+                    <th>Target</th>
+                    <th>Measured</th>
+                    <th>Status</th>
+                    <th>Evidence</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {report.reqs.map(r => (
+                    <tr key={r.requirement}>
+                      <td className="vdTdStrong">{r.requirement}</td>
+                      <td>{r.target}</td>
+                      <td>{r.measured}</td>
+                      <td>
+                        <StatusBadge
+                          label={r.status}
+                          tone={r.status === 'PASS' ? 'ok' : r.status === 'UNDER REVIEW' ? 'warn' : 'crit'}
+                        />
+                      </td>
+                      <td>
+                        <span className="vdLink">{r.evidence}</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="vdReportCard">
+            <SectionTitle>Compliance Status</SectionTitle>
+            <div className="vdComplianceGrid">
+              {report.complianceCards.map(c => (
+                <div key={c.name} className="vdComplianceCard">
+                  <div className="vdComplianceTop">
+                    <div className="vdComplianceName">{c.name}</div>
+                    <StatusBadge
+                      label={c.status}
+                      tone={c.status === 'Validated' ? 'ok' : c.status === 'Under Review' ? 'warn' : 'crit'}
+                    />
+                  </div>
+                  <div className="vdComplianceMid">
+                    <div className="vdCompliancePct">{c.coverage}%</div>
+                    <div className="vdComplianceSub">Coverage</div>
+                  </div>
+                  <ProgressBar value={c.coverage} tone={c.status === 'Critical' ? 'red' : c.status === 'Validated' ? 'green' : 'amber'} />
+                  <div className="vdComplianceBottom">
+                    <div className="vdComplianceMini">
+                      <div className="vdComplianceMiniKey">Open Clauses</div>
+                      <div className="vdComplianceMiniVal">{c.open}</div>
+                    </div>
+                    <div className="vdComplianceMini">
+                      <div className="vdComplianceMiniKey">Traceability</div>
+                      <div className="vdComplianceMiniVal vdLink">Expand</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="vdReportCard">
+            <SectionTitle
+              right={
+                <div className="vdInlineRight">
+                  <div className="vdInlineKey">Risk Score</div>
+                  <div className="vdInlineVal">{report.risk.riskScore}/100</div>
+                </div>
+              }
+            >
+              Risk Management Summary
+            </SectionTitle>
+
+            <div className="vdRiskTop">
+              <div className="vdRiskStat">
+                <div className="vdRiskKey">Total Hazards</div>
+                <div className="vdRiskVal">{report.risk.hazardsTotal}</div>
+              </div>
+              <div className="vdRiskStat">
+                <div className="vdRiskKey">High-Risk</div>
+                <div className="vdRiskVal vdRiskValWarn">{report.risk.highRisk}</div>
+              </div>
+              <div className="vdRiskStat">
+                <div className="vdRiskKey">Residual Risk</div>
+                <div className="vdRiskVal">Acceptable</div>
+              </div>
+            </div>
+
+            <div className="vdReportText">{report.risk.residualSummary}</div>
+            <ProgressBar value={100 - report.risk.riskScore} tone="green" />
+
+            <div className="vdTableWrap">
+              <table className="vdTable">
+                <thead>
+                  <tr>
+                    <th>Hazard</th>
+                    <th>Severity</th>
+                    <th>Mitigation</th>
+                    <th>Residual</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {report.risk.hazards.map(h => (
+                    <tr key={h.hazard}>
+                      <td className="vdTdStrong">{h.hazard}</td>
+                      <td>
+                        <StatusBadge label={h.severity} tone={h.severity === 'Critical' ? 'crit' : h.severity === 'High' ? 'warn' : 'ok'} />
+                      </td>
+                      <td>{h.mitigation}</td>
+                      <td>{h.residual}</td>
+                      <td>
+                        <StatusBadge label={h.status} tone={h.status === 'Closed' ? 'ok' : 'warn'} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="vdReportCard">
+            <SectionTitle
+              right={
+                <div className="vdInlineRight">
+                  <div className="vdInlineKey">Scenario Coverage</div>
+                  <div className="vdInlineVal">{report.fault.coverage}%</div>
+                </div>
+              }
+            >
+              Fault Injection Summary
+            </SectionTitle>
+            <ProgressBar value={report.fault.coverage} tone="blue" />
+            <div className="vdTableWrap">
+              <table className="vdTable">
+                <thead>
+                  <tr>
+                    <th>Scenario</th>
+                    <th>Expected</th>
+                    <th>Observed</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {report.fault.rows.map(f => (
+                    <tr key={f.scenario}>
+                      <td className="vdTdStrong">{f.scenario}</td>
+                      <td>{f.expected}</td>
+                      <td>{f.observed}</td>
+                      <td>
+                        <StatusBadge label={f.status} tone={f.status === 'PASS' ? 'ok' : 'warn'} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="vdReportCard">
+            <SectionTitle>Performance KPIs</SectionTitle>
+            <div className="vdKpiGrid">
+              {report.kpis.map(k => (
+                <div key={k.label} className="vdKpiCard">
+                  <div className="vdKpiTop">
+                    <div className="vdKpiLabel">{k.label}</div>
+                    <div className="vdKpiValue">{k.value}%</div>
+                  </div>
+                  <ProgressBar value={k.value} tone="blue" />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="vdReportCard">
+            <SectionTitle>Architecture Health</SectionTitle>
+            <div className="vdArchTop">
+              <div className="vdArchStat">
+                <div className="vdArchKey">Total Components</div>
+                <div className="vdArchVal">{report.architecture.totalComponents}</div>
+              </div>
+              <div className="vdArchStat">
+                <div className="vdArchKey">Interface Validation</div>
+                <div className="vdArchVal">
+                  <StatusBadge label={report.architecture.interfacesValidated ? 'Validated' : 'Open'} tone={report.architecture.interfacesValidated ? 'ok' : 'warn'} />
+                </div>
+              </div>
+              <div className="vdArchStat">
+                <div className="vdArchKey">Integration Errors</div>
+                <div className="vdArchVal vdRiskValWarn">{report.architecture.integrationErrors}</div>
+              </div>
+            </div>
+
+            <div className="vdArchTree">
+              {report.architecture.systems.map(sys => (
+                <div key={sys.name} className="vdArchNode">
+                  <div className="vdArchNodeTop">
+                    <div className="vdArchNodeName">{sys.name}</div>
+                    <StatusBadge label={sys.status} tone={sys.status === 'Good' ? 'ok' : 'warn'} />
+                  </div>
+                  <div className="vdArchChildren">
+                    {sys.children.map(ch => (
+                      <div key={ch.name} className="vdArchChild">
+                        <div className="vdArchChildName">{ch.name}</div>
+                        <StatusBadge label={ch.status} tone={ch.status === 'Good' ? 'ok' : 'warn'} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="vdReportCard">
+            <SectionTitle>Design Report Download</SectionTitle>
+            <div className="vdDlGrid">
+              <button className="vdDlBtn" type="button">Download Full PDF Report</button>
+              <button className="vdDlBtn vdDlBtnGhost" type="button">Export JSON Architecture</button>
+              <button className="vdDlBtn vdDlBtnGhost" type="button">Export Compliance Mapping</button>
+              <button className="vdDlBtn vdDlBtnGhost" type="button">Export Risk Log</button>
+            </div>
+            <div className="vdDlHint">Exports are demo placeholders for PPT. Connect these to your backend later if needed.</div>
+          </div>
           </div>
         </div>
-
-        <AlarmPanel settings={settings} alarms={alarms} />
-      </div>
-
-      <SimulationPanel state={whatIf} setState={setWhatIf} predicted={predicted} onRun={runSimulation} />
+      ) : null}
     </div>
   )
 }

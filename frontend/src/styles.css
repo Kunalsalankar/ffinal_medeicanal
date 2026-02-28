@@ -81,12 +81,12 @@ code, pre {
 .brandTitle {
   font-weight: 700;
   letter-spacing: 0.2px;
-  font-size: 16px;
+  font-size: 18px;
 }
 
 .brandSub {
   color: var(--muted);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 800;
 }
 
@@ -99,7 +99,7 @@ code, pre {
 .containerPpt {
   max-width: 1500px;
   padding: 12px 12px 24px;
-  font-size: 1.2em;
+  font-size: 1.32em;
 }
 
 .containerPpt .hero {
@@ -168,7 +168,7 @@ code, pre {
   border-radius: 12px;
   font-weight: 800;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .navBtnActive {
@@ -182,14 +182,14 @@ code, pre {
 
 .hero h1 {
   margin: 0 0 6px;
-  font-size: 38px;
+  font-size: 42px;
   letter-spacing: 0.2px;
 }
 
 .hero p {
   margin: 0;
   color: var(--muted);
-  font-size: 18px;
+  font-size: 20px;
   line-height: 1.6;
 }
 
@@ -223,13 +223,13 @@ code, pre {
 
 .cardTitle {
   margin: 0;
-  font-size: 22px;
+  font-size: 26px;
   letter-spacing: 0.15px;
 }
 
 .cardSub {
   color: var(--muted);
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .cardBody {
@@ -243,7 +243,7 @@ code, pre {
 .label {
   display: grid;
   gap: 8px;
-  font-size: 15px;
+  font-size: 17px;
   color: var(--muted);
 }
 
@@ -256,7 +256,7 @@ code, pre {
   background: #ffffff;
   color: var(--text);
   outline: none;
-  font-size: 17px;
+  font-size: 19px;
   line-height: 1.55;
 }
 
@@ -279,8 +279,8 @@ code, pre {
   padding: 10px 12px;
   border-radius: 12px;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 16px;
+  font-weight: 800;
+  font-size: 18px;
 }
 
 .btn:disabled {
@@ -307,7 +307,7 @@ code, pre {
   border: 1px solid rgba(34, 197, 94, 0.35);
   color: var(--success_dark);
   background: var(--success_light);
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .stack {
@@ -343,9 +343,9 @@ code, pre {
 
 .panelTitle {
   padding: 10px 12px;
-  font-size: 14px;
+  font-size: 16px;
   color: rgba(15, 23, 42, 0.68);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   border-bottom: 1px solid var(--divider);
@@ -450,12 +450,8 @@ code, pre {
   line-height: 1.75;
 }
 
-.fsContent.code {
-  font-size: 18px;
-}
-
 .fsContent.md {
-  font-size: 19px;
+  font-size: 20px;
 }
 
 .code {
@@ -464,7 +460,7 @@ code, pre {
   white-space: pre-wrap;
   word-break: break-word;
   line-height: 1.65;
-  font-size: 16px;
+  font-size: 18px;
   background: #ffffff;
   max-height: 640px;
   overflow: auto;
@@ -474,7 +470,7 @@ code, pre {
   padding: 14px;
   max-height: 640px;
   overflow: auto;
-  font-size: 17px;
+  font-size: 19px;
   line-height: 1.75;
 }
 
@@ -487,9 +483,9 @@ code, pre {
   line-height: 1.25;
 }
 
-.md h1 { font-size: 22px; }
-.md h2 { font-size: 20px; }
-.md h3 { font-size: 18px; }
+.md h1 { font-size: 28px; }
+.md h2 { font-size: 24px; }
+.md h3 { font-size: 21px; }
 
 .md p {
   margin: 8px 0;
@@ -609,16 +605,15 @@ code, pre {
 /* Ventilator Dashboard (medical report light-blue theme) */
 .vdRoot {
   background:
-    radial-gradient(1200px 700px at 20% 10%, rgba(14, 165, 233, 0.20), transparent),
-    radial-gradient(1000px 650px at 90% 20%, rgba(59, 130, 246, 0.16), transparent),
-    radial-gradient(900px 650px at 80% 90%, rgba(2, 132, 199, 0.12), transparent),
-    linear-gradient(180deg, #0b2f4f 0%, #0c3b63 30%, #0a2a45 100%);
+    radial-gradient(1100px 650px at 18% 10%, rgba(14, 165, 233, 0.18), transparent),
+    radial-gradient(900px 600px at 85% 18%, rgba(59, 130, 246, 0.14), transparent),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 60%, rgba(241, 245, 249, 0.98) 100%);
   color: #0f172a;
   min-height: calc(100vh - 64px);
   padding: 20px 18px 26px;
   border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(2, 132, 199, 0.18);
+  box-shadow: 0 18px 60px rgba(2, 8, 23, 0.10);
 }
 
 .vdHeader {
@@ -630,16 +625,129 @@ code, pre {
 }
 
 .vdHeaderTitle {
-  font-size: 38px;
+  font-size: 48px;
   font-weight: 1000;
   letter-spacing: 0.2px;
-  color: #ffffff;
-  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
+  color: rgba(15, 23, 42, 0.96);
+  text-shadow: none;
 }
 
 .vdHeaderSub {
   color: rgba(226, 232, 240, 0.92);
   font-size: 15px;
+}
+
+.vdTabs {
+  display: flex;
+  gap: 10px;
+  margin: 8px 0 12px;
+  padding: 10px;
+  border-radius: 16px;
+  border: 1px solid rgba(2, 132, 199, 0.18);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(8px);
+}
+
+.vdActions {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 0 12px;
+}
+
+.vdPdfBtn {
+  border: 1px solid rgba(14, 165, 233, 0.35);
+  background: linear-gradient(135deg, rgba(14, 165, 233, 1), rgba(2, 132, 199, 1));
+  color: rgba(255, 255, 255, 0.98);
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-size: 20px;
+  font-weight: 1000;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(2, 132, 199, 0.22);
+}
+
+.vdPdfBtn:hover {
+  background: linear-gradient(135deg, rgba(2, 132, 199, 1), rgba(3, 105, 161, 1));
+}
+
+.vdTab {
+  appearance: none;
+  border: 1px solid rgba(2, 132, 199, 0.22);
+  background: rgba(248, 250, 252, 0.95);
+  color: rgba(15, 23, 42, 0.92);
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-size: 17px;
+  font-weight: 1000;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+
+.vdTab--active {
+  border-color: rgba(14, 165, 233, 0.45);
+  background: rgba(14, 165, 233, 0.16);
+  box-shadow: 0 10px 24px rgba(2, 132, 199, 0.22);
+}
+
+.vdTab:hover {
+  background: rgba(14, 165, 233, 0.10);
+}
+
+@media print {
+  .vdNoPrint {
+    display: none !important;
+  }
+
+  .topbar,
+  .nav,
+  .btn,
+  .btnGhost,
+  .panelAction,
+  .fsClose {
+    display: none !important;
+  }
+
+  body {
+    background: #ffffff !important;
+  }
+
+  .vdRoot {
+    padding: 0 !important;
+    background: #ffffff !important;
+  }
+
+  .vdHeaderTitle {
+    color: #0f172a !important;
+    text-shadow: none !important;
+  }
+
+  .vdReport {
+    border: none !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+  }
+
+  .vdReportHeader {
+    box-shadow: none !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .vdReportCard,
+  .vdSideSection,
+  .vdPanel,
+  .vdWhatIf {
+    box-shadow: none !important;
+  }
+
+  .vdTableWrap {
+    overflow: visible !important;
+  }
+
+  .vdTable {
+    page-break-inside: avoid;
+  }
 }
 
 .vdTopGrid {
@@ -689,7 +797,7 @@ code, pre {
 }
 
 .vdCardLabel {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 800;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -697,7 +805,7 @@ code, pre {
 }
 
 .vdCardSub {
-  font-size: 12px;
+  font-size: 13px;
   color: rgba(15, 23, 42, 0.55);
 }
 
@@ -710,7 +818,7 @@ code, pre {
 }
 
 .vdCardValue {
-  font-size: 46px;
+  font-size: 56px;
   font-weight: 1000;
   letter-spacing: 0.1px;
   color: #0f172a;
@@ -721,7 +829,7 @@ code, pre {
 
 /* prevent long words like NORMAL from overflowing in smaller cards */
 .vdTopGrid .vdCard:last-child .vdCardValue {
-  font-size: 32px;
+  font-size: 34px;
   white-space: nowrap;
   word-break: normal;
   overflow-wrap: normal;
@@ -730,6 +838,7 @@ code, pre {
 .vdTopGrid .vdCard:last-child {
   padding-left: 12px;
   padding-right: 12px;
+  overflow: visible;
 }
 
 .vdTopGrid .vdCard:last-child .vdCardValueRow {
@@ -737,7 +846,7 @@ code, pre {
 }
 
 .vdCardUnit {
-  font-size: 16px;
+  font-size: 18px;
   color: rgba(15, 23, 42, 0.62);
   font-weight: 800;
   white-space: nowrap;
@@ -786,15 +895,15 @@ code, pre {
 }
 
 .vdPanelTitle {
-  font-size: 14px;
+  font-size: 18px;
   font-weight: 900;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(15, 23, 42, 0.92);
+  color: rgba(15, 23, 42, 0.75);
 }
 
 .vdPanelMeta {
-  font-size: 12px;
+  font-size: 13px;
   color: rgba(15, 23, 42, 0.60);
 }
 
@@ -815,7 +924,7 @@ code, pre {
 }
 
 .vdSideTitle {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 900;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -835,7 +944,7 @@ code, pre {
 }
 
 .vdKVVal {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 900;
   color: rgba(15, 23, 42, 0.92);
 }
@@ -857,10 +966,11 @@ code, pre {
 }
 
 .vdAlarmName {
-  font-size: 16px;
-  font-weight: 900;
-  letter-spacing: 0.04em;
-  color: rgba(15, 23, 42, 0.92);
+  font-size: 18px;
+  font-weight: 1000;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(15, 23, 42, 0.86);
 }
 
 .vdAlarmState {
@@ -891,7 +1001,7 @@ code, pre {
   justify-content: center;
   padding: 6px 12px;
   border-radius: 999px;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 1000;
   letter-spacing: 0.10em;
   text-transform: uppercase;
@@ -927,7 +1037,7 @@ code, pre {
 }
 
 .vdStatusBig {
-  font-size: 28px;
+  font-size: 30px;
   font-weight: 1000;
   letter-spacing: 0.10em;
 }
@@ -956,7 +1066,7 @@ code, pre {
 
 .vdWhatIfHeader {
   padding: 16px 14px;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 900;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -994,7 +1104,7 @@ code, pre {
 }
 
 .vdSliderLabel {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 900;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1002,7 +1112,7 @@ code, pre {
 }
 
 .vdSliderValue {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 900;
   color: rgba(15, 23, 42, 0.72);
 }
@@ -1051,7 +1161,7 @@ code, pre {
 
 .vdPredValue {
   margin-top: 6px;
-  font-size: 34px;
+  font-size: 38px;
   font-weight: 1000;
   color: rgba(15, 23, 42, 0.92);
 }
@@ -1071,7 +1181,7 @@ code, pre {
   padding: 14px 14px;
   border-radius: 16px;
   font-weight: 1000;
-  font-size: 18px;
+  font-size: 20px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   cursor: pointer;
@@ -1085,10 +1195,583 @@ code, pre {
 .vdSimHint {
   margin-top: 10px;
   color: rgba(15, 23, 42, 0.58);
-  font-size: 13px;
+  font-size: 15px;
   line-height: 1.55;
 }
 
 .vdSvg {
   display: block;
+}
+
+.vdReport {
+  margin-top: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  background: rgba(248, 250, 252, 0.98);
+  box-shadow: 0 18px 60px rgba(2, 8, 23, 0.08);
+  overflow: hidden;
+}
+
+.vdReportHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 16px 16px;
+  background: rgba(255, 255, 255, 0.98);
+  color: rgba(15, 23, 42, 0.92);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.95);
+}
+
+.vdReportHeaderLeft {
+  min-width: 0;
+}
+
+.vdReportH1 {
+  font-size: 40px;
+  font-weight: 1000;
+  letter-spacing: 0.2px;
+  color: rgba(15, 23, 42, 0.94);
+}
+
+.vdReportMeta {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.vdReportMetaItem {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  background: rgba(248, 250, 252, 0.98);
+}
+
+.vdReportMetaKey {
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 1;
+  color: rgba(100, 116, 139, 0.95);
+}
+
+.vdReportMetaVal {
+  font-size: 17px;
+  font-weight: 1000;
+  color: rgba(15, 23, 42, 0.92);
+}
+
+.vdReportHeaderRight {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.vdScoreRing {
+  width: 108px;
+  height: 108px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.95) 0 56%, transparent 57%),
+    conic-gradient(rgba(34, 197, 94, 0.95) var(--vdScore), rgba(255,255,255,0.22) 0);
+  box-shadow: 0 12px 28px rgba(2, 8, 23, 0.10);
+}
+
+.vdScoreValue {
+  font-size: 30px;
+  font-weight: 1000;
+  color: rgba(15, 23, 42, 0.92);
+}
+
+.vdScoreLabel {
+  margin-top: -2px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(15, 23, 42, 0.60);
+}
+
+.vdReportStatus {
+  display: grid;
+  gap: 6px;
+  justify-items: end;
+}
+
+.vdReportStatusLabel {
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 1;
+  color: rgba(100, 116, 139, 0.95);
+}
+
+.vdReportStatusSub {
+  font-size: 13px;
+  opacity: 1;
+  color: rgba(100, 116, 139, 0.95);
+}
+
+.vdReportGrid {
+  padding: 14px;
+  display: grid;
+  gap: 12px;
+  background: rgba(248, 250, 252, 0.98);
+}
+
+.vdReportCard {
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  border-radius: 18px;
+  padding: 14px;
+  box-shadow: 0 12px 28px rgba(2, 8, 23, 0.06);
+}
+
+.vdReportTitleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.vdReportTitle {
+  font-size: 20px;
+  font-weight: 1000;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(15, 23, 42, 0.82);
+}
+
+.vdReportTitleRight {
+  color: rgba(15, 23, 42, 0.70);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.vdInlineRight {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.vdInlineKey {
+  font-size: 13px;
+  color: rgba(15, 23, 42, 0.60);
+}
+
+.vdInlineVal {
+  font-size: 16px;
+  font-weight: 1000;
+  color: rgba(15, 23, 42, 0.92);
+}
+
+.vdReportText {
+  color: rgba(51, 65, 85, 0.95);
+  font-size: 18px;
+  line-height: 1.65;
+}
+
+.vdReportKVs {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@media (max-width: 1200px) {
+  .vdReportKVs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.vdReportKV {
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  border-radius: 14px;
+  padding: 10px;
+  background: rgba(248, 250, 252, 0.98);
+}
+
+.vdReportKVKey {
+  font-size: 13px;
+  color: rgba(100, 116, 139, 0.95);
+}
+
+.vdReportKVVal {
+  margin-top: 4px;
+  font-weight: 1000;
+  font-size: 20px;
+  color: rgba(15, 23, 42, 0.92);
+}
+
+.vdBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 1000;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: rgba(241, 245, 249, 0.95);
+}
+
+.vdBadge--ok {
+  border-color: rgba(34, 197, 94, 0.30);
+  background: rgba(220, 252, 231, 0.95);
+  color: rgba(22, 163, 74, 0.95);
+}
+
+.vdBadge--warn {
+  border-color: rgba(245, 158, 11, 0.35);
+  background: rgba(254, 243, 199, 0.95);
+  color: rgba(180, 83, 9, 0.95);
+}
+
+.vdBadge--crit {
+  border-color: rgba(239, 68, 68, 0.35);
+  background: rgba(254, 226, 226, 0.95);
+  color: rgba(185, 28, 28, 0.95);
+}
+
+.vdProg {
+  height: 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(2, 132, 199, 0.16);
+  background: rgba(241, 245, 249, 0.95);
+  overflow: hidden;
+  margin: 10px 0 12px;
+}
+
+.vdProgBar {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(2, 132, 199, 1), rgba(14, 165, 233, 0.95));
+}
+
+.vdProg--green .vdProgBar {
+  background: linear-gradient(90deg, rgba(22, 163, 74, 1), rgba(34, 197, 94, 0.95));
+}
+
+.vdProg--amber .vdProgBar {
+  background: linear-gradient(90deg, rgba(217, 119, 6, 1), rgba(245, 158, 11, 0.95));
+}
+
+.vdProg--red .vdProgBar {
+  background: linear-gradient(90deg, rgba(220, 38, 38, 1), rgba(239, 68, 68, 0.95));
+}
+
+.vdTableWrap {
+  overflow: auto;
+  border: 1px solid rgba(2, 132, 199, 0.14);
+  border-radius: 14px;
+}
+
+.vdTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.vdTable th {
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 16px;
+  font-weight: 1000;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(15, 23, 42, 0.58);
+  background: rgba(241, 245, 249, 0.95);
+  border-bottom: 1px solid rgba(2, 132, 199, 0.12);
+}
+
+.vdTable td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(2, 132, 199, 0.10);
+  font-size: 20px;
+  color: rgba(15, 23, 42, 0.82);
+}
+
+.vdTable tr:last-child td {
+  border-bottom: none;
+}
+
+.vdTdStrong {
+  font-weight: 900;
+  color: rgba(15, 23, 42, 0.92);
+}
+
+.vdLink {
+  color: rgba(2, 132, 199, 0.95);
+  font-weight: 900;
+}
+
+.vdComplianceGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@media (max-width: 1300px) {
+  .vdComplianceGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.vdComplianceCard {
+  border: 1px solid rgba(2, 132, 199, 0.14);
+  background: rgba(248, 250, 252, 0.95);
+  border-radius: 16px;
+  padding: 12px;
+}
+
+.vdComplianceTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.vdComplianceName {
+  font-weight: 1000;
+  font-size: 16px;
+}
+
+.vdComplianceMid {
+  margin-top: 10px;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.vdCompliancePct {
+  font-size: 36px;
+  font-weight: 1000;
+  color: rgba(15, 23, 42, 0.92);
+}
+
+.vdComplianceSub {
+  font-size: 12px;
+  color: rgba(15, 23, 42, 0.60);
+  font-weight: 900;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+}
+
+.vdComplianceBottom {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.vdComplianceMiniKey {
+  font-size: 13px;
+  color: rgba(15, 23, 42, 0.58);
+}
+
+.vdComplianceMiniVal {
+  font-size: 16px;
+  font-weight: 1000;
+}
+
+.vdRiskTop {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+@media (max-width: 1100px) {
+  .vdRiskTop {
+    grid-template-columns: 1fr;
+  }
+}
+
+.vdRiskStat {
+  border: 1px solid rgba(2, 132, 199, 0.14);
+  background: rgba(248, 250, 252, 0.95);
+  border-radius: 16px;
+  padding: 10px;
+}
+
+.vdRiskKey {
+  font-size: 13px;
+  color: rgba(15, 23, 42, 0.60);
+  font-weight: 900;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+}
+
+.vdRiskVal {
+  margin-top: 4px;
+  font-size: 26px;
+  font-weight: 1000;
+  color: rgba(15, 23, 42, 0.92);
+}
+
+.vdRiskValWarn {
+  color: rgba(180, 83, 9, 0.95);
+}
+
+.vdKpiGrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@media (max-width: 1400px) {
+  .vdKpiGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.vdKpiCard {
+  border: 1px solid rgba(2, 132, 199, 0.14);
+  background: rgba(248, 250, 252, 0.95);
+  border-radius: 16px;
+  padding: 12px;
+}
+
+.vdKpiTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.vdKpiLabel {
+  font-weight: 900;
+  color: rgba(15, 23, 42, 0.70);
+  font-size: 13px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+}
+
+.vdKpiValue {
+  font-weight: 1000;
+  font-size: 28px;
+  color: rgba(15, 23, 42, 0.92);
+}
+
+.vdArchTop {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+@media (max-width: 1100px) {
+  .vdArchTop {
+    grid-template-columns: 1fr;
+  }
+}
+
+.vdArchStat {
+  border: 1px solid rgba(2, 132, 199, 0.14);
+  background: rgba(248, 250, 252, 0.95);
+  border-radius: 16px;
+  padding: 10px;
+}
+
+.vdArchKey {
+  font-size: 13px;
+  color: rgba(15, 23, 42, 0.60);
+  font-weight: 900;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+}
+
+.vdArchVal {
+  margin-top: 4px;
+  font-size: 22px;
+  font-weight: 1000;
+}
+
+.vdArchTree {
+  display: grid;
+  gap: 10px;
+}
+
+.vdArchNode {
+  border: 1px solid rgba(2, 132, 199, 0.14);
+  background: rgba(248, 250, 252, 0.95);
+  border-radius: 16px;
+  padding: 12px;
+}
+
+.vdArchNodeTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.vdArchNodeName {
+  font-weight: 1000;
+  font-size: 16px;
+}
+
+.vdArchChildren {
+  margin-top: 10px;
+  display: grid;
+  gap: 8px;
+}
+
+.vdArchChild {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(2, 132, 199, 0.12);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.vdArchChildName {
+  font-weight: 900;
+  color: rgba(15, 23, 42, 0.88);
+  font-size: 16px;
+}
+
+.vdDlGrid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr 1fr;
+  gap: 10px;
+}
+
+@media (max-width: 1100px) {
+  .vdDlGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.vdDlBtn {
+  border: 1px solid rgba(2, 132, 199, 0.30);
+  background: linear-gradient(135deg, rgba(2, 132, 199, 1), rgba(14, 165, 233, 0.95));
+  color: rgba(255, 255, 255, 0.98);
+  padding: 14px 12px;
+  border-radius: 14px;
+  font-weight: 1000;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+
+.vdDlBtnGhost {
+  background: rgba(255, 255, 255, 0.96);
+  color: rgba(15, 23, 42, 0.92);
+}
+
+.vdDlHint {
+  margin-top: 10px;
+  color: rgba(15, 23, 42, 0.60);
+  font-size: 14px;
 }

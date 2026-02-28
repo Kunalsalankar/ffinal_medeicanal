@@ -111,6 +111,16 @@ export default function App() {
   const [error, setError] = useState('')
   const [result, setResult] = useState(null)
 
+  function downloadPdf() {
+    const prevTitle = document.title
+    const suffix = page === 'dashboard' ? 'Ventilator Dashboard' : 'Multi-Agent Pipeline'
+    document.title = suffix
+    window.setTimeout(() => {
+      window.print()
+      document.title = prevTitle
+    }, 50)
+  }
+
   useEffect(() => {
     function onKeyDown(e) {
       if (e.key === 'Escape') setFullscreen(null)
@@ -173,13 +183,18 @@ export default function App() {
             </button>
 
             {page === 'pipeline' ? (
-              <button
-                className={pptMode ? 'navBtn navBtnActive' : 'navBtn'}
-                onClick={() => setPptMode(v => !v)}
-                type="button"
-              >
-                PPT Mode
-              </button>
+              <>
+                <button
+                  className={pptMode ? 'navBtn navBtnActive' : 'navBtn'}
+                  onClick={() => setPptMode(v => !v)}
+                  type="button"
+                >
+                  PPT Mode
+                </button>
+                <button className="navBtn vdNoPrint" onClick={downloadPdf} type="button">
+                  Download PDF
+                </button>
+              </>
             ) : null}
           </div>
         </div>
