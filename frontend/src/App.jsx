@@ -3,18 +3,62 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { runPipeline } from './api.js'
 import VentilatorDashboard from './pages/VentilatorDashboard/Dashboard.jsx'
+import BloodPressureDashboard from './pages/BloodPressureDashboard/Dashboard.jsx'
 
 function tryPrettyJson(text) {
   if (typeof text !== 'string') return null
   const s = text.trim()
   if (!s) return null
-  if (!(s.startsWith('{') || s.startsWith('['))) return null
-  try {
-    const obj = JSON.parse(s)
-    return JSON.stringify(obj, null, 2)
-  } catch {
-    return null
+
+  function tryParseJsonCandidate(candidate) {
+    if (!candidate) return null
+    const c = candidate.trim()
+    if (!(c.startsWith('{') || c.startsWith('['))) return null
+    try {
+      const obj = JSON.parse(c)
+      return JSON.stringify(obj, null, 2)
+    } catch {
+      // Some agents return JSON that is escaped because it was embedded as a string
+      // (e.g. {\"a\":1} or with \n sequences). Try a light unescape pass.
+      try {
+        const unescaped = c
+          .replace(/\\n/g, '\n')
+          .replace(/\\r/g, '\r')
+          .replace(/\\t/g, '\t')
+          .replace(/\\"/g, '"')
+          .replace(/\\'/g, "'")
+          .replace(/\\\\/g, '\\')
+        const obj2 = JSON.parse(unescaped)
+        return JSON.stringify(obj2, null, 2)
+      } catch {
+        return null
+      }
+    }
   }
+
+  const direct = tryParseJsonCandidate(s)
+  if (direct) return direct
+
+  // Handle wrapped cases like:
+  // json_string = '{ "a": 1 }';
+  // const payload = "{...}";
+  const firstObj = s.indexOf('{')
+  const firstArr = s.indexOf('[')
+  const start =
+    firstObj === -1
+      ? firstArr
+      : firstArr === -1
+        ? firstObj
+        : Math.min(firstObj, firstArr)
+  if (start === -1) return null
+
+  const endObj = s.lastIndexOf('}')
+  const endArr = s.lastIndexOf(']')
+  const end = Math.max(endObj, endArr)
+  if (end === -1 || end <= start) return null
+
+  const extracted = s.slice(start, end + 1)
+  return tryParseJsonCandidate(extracted)
 }
 
 function formatAny(value) {
@@ -223,6 +267,13 @@ export default function App() {
             >
               Ventilator Dashboard
             </button>
+            <button
+              className={page === 'bp' ? 'navBtn navBtnActive' : 'navBtn'}
+              onClick={() => setPage('bp')}
+              type="button"
+            >
+              BP Dashboard
+            </button>
 
             {page === 'pipeline' ? (
               <>
@@ -245,6 +296,10 @@ export default function App() {
       {page === 'dashboard' ? (
         <main className="container containerWide">
           <VentilatorDashboard />
+        </main>
+      ) : page === 'bp' ? (
+        <main className="container containerWide">
+          <BloodPressureDashboard />
         </main>
       ) : (
       <main className={pptMode ? 'container containerPpt' : 'container'}>

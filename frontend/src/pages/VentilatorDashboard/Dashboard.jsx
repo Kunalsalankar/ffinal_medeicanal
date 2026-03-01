@@ -3,7 +3,7 @@ import ParameterCard from './ParameterCard.jsx'
 import WaveformChart from './WaveformChart.jsx'
 import AlarmPanel from './AlarmPanel.jsx'
 import SimulationPanel from './SimulationPanel.jsx'
-import PvLoopChart from './PvLoopChart.jsx'
+import { runVentilatorWhatIf } from '../../api.js'
 
 function makeWaveform({ phase, amplitude, baseline, freq, points = 120 }) {
   const data = []
@@ -51,13 +51,116 @@ function SectionTitle({ children, right }) {
 export default function Dashboard() {
   const [tick, setTick] = useState(0)
   const [simPulse, setSimPulse] = useState(0)
-  const [whatIf, setWhatIf] = useState({ compliance: 25, resistance: 10, leak: 0 })
+  const [whatIf, setWhatIf] = useState({ compliance: 25, resistance: 10, leak: 0, rr_bpm: 22, sensor_noise_pct: 0 })
   const [activeView, setActiveView] = useState('dashboard')
+
+  const [whatIfSim, setWhatIfSim] = useState(null)
+  const [whatIfLoading, setWhatIfLoading] = useState(false)
+  const [whatIfError, setWhatIfError] = useState('')
+  const [baselineOn, setBaselineOn] = useState(true)
+  const [baselineSim, setBaselineSim] = useState(null)
+
+  const [dashSim, setDashSim] = useState(null)
+  const [dashError, setDashError] = useState('')
+
+  async function fetchBaselineSimulation() {
+    try {
+      const r = await runVentilatorWhatIf({
+        compliance: 25,
+        resistance: 10,
+        leak: 0,
+        rr_bpm: 22,
+        sensor_noise_pct: 0,
+        sim_pulse: 0,
+        duration_s: 6,
+        fs_hz: 50
+      })
+      setBaselineSim(r)
+    } catch {
+      setBaselineSim(null)
+    }
+  }
+
+  async function fetchDashboardSimulation() {
+    setDashError('')
+    try {
+      const r = await runVentilatorWhatIf({
+        compliance: 25,
+        resistance: 10,
+        leak: 0,
+        sim_pulse: 0,
+        duration_s: 6,
+        fs_hz: 50
+      })
+      setDashSim(r)
+    } catch (e) {
+      setDashError(e?.message || String(e))
+      setDashSim(null)
+    }
+  }
 
   useEffect(() => {
     const id = setInterval(() => setTick(t => t + 1), 350)
     return () => clearInterval(id)
   }, [])
+
+  const vtIbwKg = 70
+
+  function toneRank(tone) {
+    return tone === 'crit' ? 2 : tone === 'warn' ? 1 : 0
+  }
+
+  function toneToAccent(tone) {
+    return tone === 'crit' ? 'danger' : tone === 'warn' ? 'warning' : tone === 'ok' ? 'success' : 'primary'
+  }
+
+  function classifyVtMlKg(vtMl, ibwKg) {
+    const mlKg = vtMl / Math.max(1, ibwKg)
+    if (mlKg > 10) return { tone: 'crit', mlKg }
+    if (mlKg > 8) return { tone: 'warn', mlKg }
+    if (mlKg >= 4) return { tone: 'ok', mlKg }
+    return { tone: 'warn', mlKg }
+  }
+
+  function classifyInspiratoryPressure(pip) {
+    if (pip > 30) return 'crit'
+    if (pip >= 20) return 'warn'
+    if (pip >= 10) return 'ok'
+    return 'warn'
+  }
+
+  function classifyPeep(peep) {
+    if (peep > 15) return 'crit'
+    if (peep > 10) return 'warn'
+    if (peep >= 5) return 'ok'
+    return 'warn'
+  }
+
+  function classifyFio2(fio2Pct) {
+    if (fio2Pct > 60) return 'crit'
+    if (fio2Pct > 40) return 'warn'
+    if (fio2Pct >= 21) return 'ok'
+    return 'warn'
+  }
+
+  function classifyFlowRate(flowLpm) {
+    if (flowLpm > 80) return 'crit'
+    if (flowLpm > 60) return 'warn'
+    if (flowLpm >= 40) return 'ok'
+    return 'warn'
+  }
+
+  function classifyLeak(leakPct) {
+    if (leakPct > 10) return 'crit'
+    if (leakPct >= 5) return 'warn'
+    return 'ok'
+  }
+
+  function classifyBattery(battPct) {
+    if (battPct < 20) return 'crit'
+    if (battPct < 40) return 'warn'
+    return 'ok'
+  }
 
   const predicted = useMemo(() => {
     const basePip = 26
@@ -120,6 +223,81 @@ export default function Dashboard() {
     return points
   }, [whatIf])
 
+  const displayPredicted = whatIfSim?.predicted || predicted
+  const displayPressureData = whatIfSim?.pressureData || pressureData
+  const displayFlowData = whatIfSim?.flowData || flowData
+  const displayPvLoop = whatIfSim?.pvLoop || pvLoop
+  const displayVolumeData = whatIfSim?.volumeData || null
+
+  const baselinePressureData = baselineSim?.pressureData || null
+  const baselineFlowData = baselineSim?.flowData || null
+  const baselineVolumeData = baselineSim?.volumeData || null
+
+  function mergeBaseline(simData, baseData) {
+    if (!simData || !baseData) return simData
+    const n = Math.min(simData.length, baseData.length)
+    const out = []
+    for (let i = 0; i < n; i++) {
+      out.push({ ...simData[i], y_base: baseData[i]?.y })
+    }
+    return out
+  }
+
+  const pressurePlot = baselineOn ? mergeBaseline(displayPressureData, baselinePressureData) : displayPressureData
+  const flowPlot = baselineOn ? mergeBaseline(displayFlowData, baselineFlowData) : displayFlowData
+  const volumePlot = baselineOn ? mergeBaseline(displayVolumeData, baselineVolumeData) : displayVolumeData
+
+  const dashboardPressureData = dashSim?.pressureData || pressureData
+  const dashboardFlowData = dashSim?.flowData || flowData
+
+  async function fetchWhatIfSimulation() {
+    setWhatIfError('')
+    setWhatIfLoading(true)
+    try {
+      const r = await runVentilatorWhatIf({
+        compliance: whatIf.compliance,
+        resistance: whatIf.resistance,
+        leak: whatIf.leak,
+        rr_bpm: whatIf.rr_bpm,
+        sensor_noise_pct: whatIf.sensor_noise_pct,
+        sim_pulse: simPulse,
+        duration_s: 6,
+        fs_hz: 50
+      })
+      setWhatIfSim(r)
+    } catch (e) {
+      setWhatIfError(e?.message || String(e))
+      setWhatIfSim(null)
+    } finally {
+      setWhatIfLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (activeView !== 'whatif') return
+    const id = setTimeout(() => {
+      fetchWhatIfSimulation()
+    }, 250)
+    return () => clearTimeout(id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeView, whatIf, simPulse])
+
+  useEffect(() => {
+    if (activeView !== 'whatif') return
+    fetchBaselineSimulation()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeView])
+
+  useEffect(() => {
+    if (activeView !== 'dashboard') return
+    fetchDashboardSimulation()
+    const id = setInterval(() => {
+      fetchDashboardSimulation()
+    }, 4000)
+    return () => clearInterval(id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeView])
+
   const settings = {
     Mode: 'AC/PC',
     'Set RR': '22 bpm',
@@ -133,6 +311,49 @@ export default function Dashboard() {
     { name: 'LOW VT', state: 'ok' },
     { name: 'APNEA', state: 'ok' }
   ]
+
+  const standards = useMemo(() => {
+    const vtMl = Number(displayPredicted?.vt) || 650
+    const pip = Number(displayPredicted?.pip) || 26
+    const fio2 = 45
+    const peep = 5
+    const flow = 50
+    const leak = Number.isFinite(whatIf.leak) ? whatIf.leak : 0
+    const battery = 65
+
+    const vtClass = classifyVtMlKg(vtMl, vtIbwKg)
+    const pipTone = classifyInspiratoryPressure(pip)
+    const peepTone = classifyPeep(peep)
+    const fio2Tone = classifyFio2(fio2)
+    const flowTone = classifyFlowRate(flow)
+    const leakTone = classifyLeak(leak)
+    const batteryTone = classifyBattery(battery)
+
+    const alarmWorstTone = alarms.reduce((acc, a) => {
+      const t = a.state === 'crit' ? 'crit' : a.state === 'warn' ? 'warn' : 'ok'
+      return toneRank(t) > toneRank(acc) ? t : acc
+    }, 'ok')
+
+    const alarmStatusLabel = alarmWorstTone === 'crit' ? 'continuous' : alarmWorstTone === 'warn' ? 'intermittent' : 'none'
+    const overallTone = ['ok', vtClass.tone, pipTone, peepTone, fio2Tone, flowTone, leakTone, batteryTone, alarmWorstTone].reduce(
+      (acc, t) => (toneRank(t) > toneRank(acc) ? t : acc),
+      'ok'
+    )
+    const overallLabel = overallTone === 'ok' ? 'NORMAL' : overallTone === 'warn' ? 'WARNING' : 'CRITICAL'
+    const overallSub = overallTone === 'ok' ? 'All monitored metrics within limits' : 'One or more parameters outside safe limits'
+
+    return {
+      vt: { vtMl, mlKg: vtClass.mlKg, tone: vtClass.tone },
+      pip: { pip, tone: pipTone },
+      peep: { peep, tone: peepTone },
+      fio2: { fio2, tone: fio2Tone },
+      flow: { flow, tone: flowTone },
+      leak: { leak, tone: leakTone },
+      battery: { battery, tone: batteryTone },
+      alarm: { tone: alarmWorstTone, statusLabel: alarmStatusLabel },
+      overall: { tone: overallTone, label: overallLabel, sub: overallSub }
+    }
+  }, [alarms, displayPredicted, whatIf.leak])
 
   const report = useMemo(() => {
     const now = new Date()
@@ -451,13 +672,19 @@ export default function Dashboard() {
         <>
           <div className="vdTopGrid">
             <ParameterCard label="MODE" value="AC/PC" unit="" accent="primary" />
-            <ParameterCard label="Vt" value="650" unit="mL" accent="primary" />
+            <ParameterCard
+              label="Vt"
+              value={String(Math.round(standards.vt.vtMl))}
+              unit="mL"
+              accent={toneToAccent(standards.vt.tone)}
+              subLabel={`${standards.vt.mlKg.toFixed(1)} ml/kg`}
+            />
             <ParameterCard label="RR" value="22" unit="bpm" accent="primary" />
-            <ParameterCard label="PIP" value="26" unit="cmH2O" accent="warning" />
-            <ParameterCard label="Ve" value="9.8" unit="L/min" accent="primary" />
-            <ParameterCard label="PEEP" value="5" unit="cmH2O" accent="primary" />
-            <ParameterCard label="FiO2" value="45" unit="%" accent="primary" />
-            <ParameterCard label="System" value="NORMAL" unit="" accent="success" subLabel="System Status" />
+            <ParameterCard label="PIP" value={String(Math.round(standards.pip.pip))} unit="cmH2O" accent={toneToAccent(standards.pip.tone)} />
+            <ParameterCard label="Ve" value={String(displayPredicted.ve)} unit="L/min" accent="primary" />
+            <ParameterCard label="PEEP" value={String(standards.peep.peep)} unit="cmH2O" accent={toneToAccent(standards.peep.tone)} />
+            <ParameterCard label="FiO2" value={String(standards.fio2.fio2)} unit="%" accent={toneToAccent(standards.fio2.tone)} />
+            <ParameterCard label="System" value={standards.overall.label} unit="" accent={toneToAccent(standards.overall.tone)} subLabel="System Status" />
           </div>
 
           <div className="vdMainGrid">
@@ -465,30 +692,113 @@ export default function Dashboard() {
               <div className="vdChartsRow">
                 <WaveformChart
                   title="AIRWAY PRESSURE vs TIME"
-                  data={pressureData}
+                  data={dashboardPressureData}
                   yLabel="Pressure (cmH2O)"
-                  lineColor="#22d3ee"
+                  lineColor="#0EA5E9"
                 />
                 <WaveformChart
                   title="AIR FLOW RATE vs TIME"
-                  data={flowData}
+                  data={dashboardFlowData}
                   yLabel="Flow (L/min)"
-                  lineColor="#a78bfa"
+                  lineColor="#8B5CF6"
                 />
-              </div>
-
-              <div className="vdPvLoop">
-                <PvLoopChart data={pvLoop} />
               </div>
             </div>
 
-            <AlarmPanel settings={settings} alarms={alarms} />
+            <AlarmPanel
+              settings={settings}
+              alarms={alarms}
+              systemTone={standards.overall.tone}
+              systemLabel={standards.overall.label}
+              systemSub={standards.overall.sub}
+              alarmStatusLabel={standards.alarm.statusLabel}
+            />
           </div>
+          {dashError ? <div className="vdSideHint">{dashError}</div> : null}
         </>
       ) : null}
 
       {activeView === 'whatif' ? (
-        <SimulationPanel state={whatIf} setState={setWhatIf} predicted={predicted} onRun={runSimulation} />
+        <>
+          <div className="vdWhatIfLayout">
+            <div>
+              <SimulationPanel
+                state={whatIf}
+                setState={setWhatIf}
+                predicted={displayPredicted}
+                onRun={fetchWhatIfSimulation}
+              />
+              <div className="vdSideSection">
+                <div className="vdSideTitle">SciPy Simulation</div>
+                <div className="vdKVKey">Status</div>
+                <div className="vdKVVal">{whatIfLoading ? 'RUNNING' : whatIfError ? 'ERROR' : 'READY'}</div>
+                {whatIfError ? <div className="vdSideHint">{whatIfError}</div> : null}
+              </div>
+            </div>
+
+            <div className="vdCharts">
+              <div className="vdChartToolbar">
+                <div className="vdToggleRow">
+                  <div className="vdToggleLabel">Show Baseline Comparison</div>
+                  <button
+                    type="button"
+                    className={baselineOn ? 'vdToggle vdToggle--on' : 'vdToggle'}
+                    onClick={() => setBaselineOn(v => !v)}
+                  >
+                    <span className="vdToggleThumb" />
+                  </button>
+                </div>
+              </div>
+              <div className="vdChartsCol">
+                <div className="vdPredTitle">Predicted Outputs</div>
+                <div className="vdPredGrid vdPredGrid--row">
+                  <div className="vdPredItem">
+                    <div className="vdPredLabel">PREDICTED PIP</div>
+                    <div className="vdPredValue">
+                      {displayPredicted.pip} <span className="vdPredUnit">cmH2O</span>
+                    </div>
+                  </div>
+                  <div className="vdPredItem">
+                    <div className="vdPredLabel">PREDICTED VT</div>
+                    <div className="vdPredValue">
+                      {displayPredicted.vt} <span className="vdPredUnit">mL</span>
+                    </div>
+                  </div>
+                  <div className="vdPredItem">
+                    <div className="vdPredLabel">PREDICTED Ve</div>
+                    <div className="vdPredValue">
+                      {displayPredicted.ve} <span className="vdPredUnit">L/min</span>
+                    </div>
+                  </div>
+                </div>
+
+                <WaveformChart
+                  title="AIRWAY PRESSURE vs TIME"
+                  data={pressurePlot}
+                  yLabel="Pressure (cmH2O)"
+                  lineColor="#0EA5E9"
+                  baselineDataKey={baselineOn ? 'y_base' : null}
+                />
+                <WaveformChart
+                  title="AIR FLOW RATE vs TIME"
+                  data={flowPlot}
+                  yLabel="Flow (L/min)"
+                  lineColor="#8B5CF6"
+                  baselineDataKey={baselineOn ? 'y_base' : null}
+                />
+                {volumePlot ? (
+                  <WaveformChart
+                    title="VOLUME vs TIME"
+                    data={volumePlot}
+                    yLabel="Volume (mL)"
+                    lineColor="#F59E0B"
+                    baselineDataKey={baselineOn ? 'y_base' : null}
+                  />
+                ) : null}
+              </div>
+            </div>
+          </div>
+        </>
       ) : null}
 
       {activeView === 'report' ? (

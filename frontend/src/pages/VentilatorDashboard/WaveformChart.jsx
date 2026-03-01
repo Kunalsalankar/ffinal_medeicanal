@@ -9,7 +9,7 @@ import {
   YAxis
 } from 'recharts'
 
-export default function WaveformChart({ title, data, yLabel, lineColor = '#22d3ee' }) {
+export default function WaveformChart({ title, data, yLabel, lineColor = '#0EA5E9', baselineDataKey = null, baselineColor = 'rgba(148, 163, 184, 0.95)' }) {
   return (
     <div className="vdPanel">
       <div className="vdPanelHeader">
@@ -64,6 +64,17 @@ export default function WaveformChart({ title, data, yLabel, lineColor = '#22d3e
               dot={false}
               isAnimationActive={false}
             />
+            {baselineDataKey ? (
+              <Line
+                type="monotone"
+                dataKey={baselineDataKey}
+                stroke={baselineColor}
+                strokeWidth={2}
+                strokeDasharray="6 6"
+                dot={false}
+                isAnimationActive={false}
+              />
+            ) : null}
           </LineChart>
         </ResponsiveContainer>
       </div>

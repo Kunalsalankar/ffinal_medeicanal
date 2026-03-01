@@ -13,14 +13,7 @@ try:
 except Exception:
     pass
 
-# --- Configuration ---
-# Gemini quota note: quotas are evaluated per Google Cloud project/account
-# and apply across all models and API keys. Rotating or changing model names
-# will *not* bypass a zero free‑tier quota – you must add keys on another
-# project or enable billing/upgrade the plan.
-#
-# each agent may have one or more Gemini API keys; the code will rotate
-# through the list if a quota-exhausted error occurs.
+
 def _csv_env(name: str):
     v = os.getenv(name, "").strip()
     if not v:

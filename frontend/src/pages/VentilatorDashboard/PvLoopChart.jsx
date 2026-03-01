@@ -9,7 +9,7 @@ import {
   YAxis
 } from 'recharts'
 
-export default function PvLoopChart({ title = 'PRESSURE–VOLUME LOOP', data }) {
+export default function PvLoopChart({ title = 'PRESSURE–VOLUME LOOP', data, lineColor = '#059669' }) {
   return (
     <div className="vdPanel">
       <div className="vdPanelHeader">
@@ -55,7 +55,7 @@ export default function PvLoopChart({ title = 'PRESSURE–VOLUME LOOP', data }) 
               }}
               labelFormatter={() => ''}
             />
-            <Line type="monotone" dataKey="y" stroke="#16a34a" strokeWidth={3} dot={false} isAnimationActive={false} />
+            <Line type="monotone" dataKey="y" stroke={lineColor} strokeWidth={3} dot={false} isAnimationActive={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>

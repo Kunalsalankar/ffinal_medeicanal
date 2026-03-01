@@ -1,5 +1,14 @@
 import React from 'react'
 
+function Section({ title, children }) {
+  return (
+    <div className="vdWhatIfSection">
+      <div className="vdWhatIfSectionTitle">{title}</div>
+      {children}
+    </div>
+  )
+}
+
 function Slider({ label, min, max, step, value, onChange, unit }) {
   return (
     <div className="vdSlider">
@@ -32,73 +41,68 @@ function Slider({ label, min, max, step, value, onChange, unit }) {
 
 export default function SimulationPanel({ state, setState, predicted, onRun }) {
   return (
-    <div className="vdWhatIf">
-      <div className="vdWhatIfHeader">
-        WHAT‑IF ANALYSIS SIMULATION (Virtual Patient Twin)
-      </div>
+    <div className="vdWhatIf vdWhatIf--sidebar">
+      <div className="vdWhatIfHeader">Ventilator What‑If Simulation</div>
 
       <div className="vdWhatIfGrid">
         <div className="vdWhatIfLeft">
-          <Slider
-            label="Lung Compliance"
-            min={15}
-            max={25}
-            step={1}
-            value={state.compliance}
-            onChange={v => setState(s => ({ ...s, compliance: v }))}
-            unit="mL/cmH2O"
-          />
-          <Slider
-            label="Airway Resistance"
-            min={10}
-            max={25}
-            step={1}
-            value={state.resistance}
-            onChange={v => setState(s => ({ ...s, resistance: v }))}
-            unit="cmH2O/L/s"
-          />
-          <Slider
-            label="Leak Percentage"
-            min={0}
-            max={15}
-            step={1}
-            value={state.leak}
-            onChange={v => setState(s => ({ ...s, leak: v }))}
-            unit="%"
-          />
-        </div>
+          <Section title="Physiology">
+            <Slider
+              label="Lung Compliance"
+              min={15}
+              max={60}
+              step={1}
+              value={state.compliance}
+              onChange={v => setState(s => ({ ...s, compliance: v }))}
+              unit="mL/cmH2O"
+            />
+            <Slider
+              label="Resistance"
+              min={5}
+              max={25}
+              step={1}
+              value={state.resistance}
+              onChange={v => setState(s => ({ ...s, resistance: v }))}
+              unit="cmH2O/L/s"
+            />
+            <Slider
+              label="Resp Rate"
+              min={8}
+              max={35}
+              step={1}
+              value={state.rr_bpm}
+              onChange={v => setState(s => ({ ...s, rr_bpm: v }))}
+              unit="bpm"
+            />
+          </Section>
 
-        <div className="vdWhatIfRight">
-          <div className="vdPredTitle">Predicted Outputs</div>
+          <Section title="Disturbance">
+            <Slider
+              label="Sensor Noise"
+              min={0}
+              max={6}
+              step={0.5}
+              value={state.sensor_noise_pct}
+              onChange={v => setState(s => ({ ...s, sensor_noise_pct: v }))}
+              unit="%"
+            />
+            <Slider
+              label="Circuit Leak"
+              min={0}
+              max={15}
+              step={1}
+              value={state.leak}
+              onChange={v => setState(s => ({ ...s, leak: v }))}
+              unit="%"
+            />
+          </Section>
 
-          <div className="vdPredGrid">
-            <div className="vdPredItem">
-              <div className="vdPredLabel">PREDICTED PIP</div>
-              <div className="vdPredValue">
-                {predicted.pip} <span className="vdPredUnit">cmH2O</span>
-              </div>
-            </div>
-            <div className="vdPredItem">
-              <div className="vdPredLabel">PREDICTED VT</div>
-              <div className="vdPredValue">
-                {predicted.vt} <span className="vdPredUnit">mL</span>
-              </div>
-            </div>
-            <div className="vdPredItem">
-              <div className="vdPredLabel">PREDICTED Ve</div>
-              <div className="vdPredValue">
-                {predicted.ve} <span className="vdPredUnit">L/min</span>
-              </div>
-            </div>
-          </div>
-
-          <button className="vdSimBtn" onClick={onRun}>
-            RUN SIMULATION
-          </button>
-
-          <div className="vdSimHint">
-            Outputs update with sliders; simulation adds a small animated change to waveforms.
-          </div>
+          <Section title="Simulation Settings">
+            <button className="vdSimBtn" onClick={onRun}>
+              RUN SIMULATION
+            </button>
+            <div className="vdSimHint">Auto-updates when sliders change.</div>
+          </Section>
         </div>
       </div>
     </div>
