@@ -3,6 +3,9 @@ import json
 import os
 import pickle
 from pathlib import Path
+import textwrap
+import re, time
+import random
 
 try:
     from dotenv import load_dotenv
@@ -68,9 +71,6 @@ CACHE_DIR.mkdir(exist_ok=True)
 
 # rotate among a set of model instances built with different keys
 import google.api_core.exceptions as _api_exc
-
-import re, time
-import random
 
 class RotatingModel:
     def __init__(self, model_names, api_keys):
@@ -251,6 +251,57 @@ def _settling_time(time_s, signal, target, band_fraction=0.02):
     return float(last_outside)
 
 
+def _dedupe_lines_keep_order(lines):
+    seen = set()
+    out = []
+    for ln in lines:
+        if ln not in seen:
+            out.append(ln)
+            seen.add(ln)
+    return out
+
+
+def _clean_user_request_for_a1(user_request: str) -> str:
+    raw = textwrap.dedent(str(user_request or "")).strip()
+    if not raw:
+        return ""
+
+    lines = [ln.strip() for ln in raw.splitlines() if ln.strip()]
+    lines = _dedupe_lines_keep_order(lines)
+
+    # If the user pasted the agent instructions back into the input, remove them.
+    banned_exact = {
+        "You are an expert Medical Device Regulatory Agent with RAG access to regulatory standards.",
+        "Extract critical safety constraints, target pressures, and flow rates required for this device.",
+        "Return a structured Markdown REQUIREMENTS_DOCUMENT with sections and strict numerical parameters.",
+    }
+
+    # Strip common prefix first (case-insensitive; tolerate 'want' vs 'wants').
+    cleaned = []
+    for ln in lines:
+        ln2 = re.sub(r"^the user wants? to design:\s*", "", ln, flags=re.IGNORECASE).strip()
+        cleaned.append(ln2 or ln)
+
+    # Remove exact matches (after prefix stripping).
+    cleaned = [ln for ln in cleaned if ln and ln not in banned_exact]
+
+    # Remove common instruction phrases (case-insensitive) to avoid echo/repetition.
+    banned_substrings = [
+        "you are an expert medical device regulatory agent",
+        "rag access to regulatory standards",
+        "extract critical safety constraints",
+        "return a structured markdown requirements_document",
+    ]
+    cleaned = [
+        ln
+        for ln in cleaned
+        if not any(sub in ln.lower() for sub in banned_substrings)
+    ]
+
+    # Prefer a single-line request to avoid ugly wrapping in the UI.
+    return " ".join(cleaned).strip()
+
+
 def run_validation(simulation_data, iso_limits=None):
     iso_limits = iso_limits or {}
     time_s = simulation_data.get("time_s") or []
@@ -288,6 +339,66 @@ def run_validation(simulation_data, iso_limits=None):
     return report
 
 
+def _a4_check(metric_value, limit_value):
+    if metric_value is None or limit_value is None:
+        return "FAIL"
+    try:
+        return "PASS" if float(metric_value) <= float(limit_value) else "FAIL"
+    except Exception:
+        return "FAIL"
+
+
+def run_validation_report(simulation_results: dict, iso_limits: dict) -> dict:
+    simulation_results = simulation_results or {}
+    iso_limits = iso_limits or {}
+
+    checks = {
+        "peak_pressure_check": _a4_check(
+            simulation_results.get("peak_pressure"),
+            iso_limits.get("max_pressure_cmH2O"),
+        ),
+        "overshoot_check": _a4_check(
+            simulation_results.get("overshoot_percent"),
+            iso_limits.get("max_overshoot_percent"),
+        ),
+        "settling_time_check": _a4_check(
+            simulation_results.get("settling_time_sec"),
+            iso_limits.get("max_settling_time_sec"),
+        ),
+        "steady_state_error_check": _a4_check(
+            simulation_results.get("steady_state_error_percent"),
+            iso_limits.get("max_steady_state_error_percent"),
+        ),
+        "tidal_volume_check": _a4_check(
+            simulation_results.get("tidal_volume_error_percent"),
+            iso_limits.get("max_tidal_volume_error_percent"),
+        ),
+        "flow_rate_check": _a4_check(
+            simulation_results.get("max_flow_rate_L_min"),
+            iso_limits.get("max_flow_rate_L_min"),
+        ),
+    }
+
+    all_pass = all(v == "PASS" for v in checks.values())
+
+    return {
+        "validation_status": "SUCCESS" if all_pass else "FAIL",
+        "measured_values": {
+            "peak_pressure_cmH2O": simulation_results.get("peak_pressure"),
+            "overshoot_percent": simulation_results.get("overshoot_percent"),
+            "settling_time_sec": simulation_results.get("settling_time_sec"),
+            "steady_state_error_percent": simulation_results.get("steady_state_error_percent"),
+            "tidal_volume_error_percent": simulation_results.get("tidal_volume_error_percent"),
+            "flow_rate_L_min": simulation_results.get("max_flow_rate_L_min"),
+        },
+        "metrics_summary": checks,
+        "overall_safety": "ICU Ventilator design complies with ISO safety limits."
+        if all_pass
+        else "ICU Ventilator design does not comply with ISO safety limits.",
+        "certification_ready": bool(all_pass),
+    }
+
+
 def run_multi_agent_pipeline_structured(user_request: str, simulation_data=None, iso_limits=None):
     result = {
         "user_request": user_request,
@@ -302,17 +413,25 @@ def run_multi_agent_pipeline_structured(user_request: str, simulation_data=None,
     print(f"--- Starting Pipeline for: {user_request} ---\n")
 
     print("🤖 Agent A1 (Regulatory Specialist) is extracting constraints...")
+    user_request_clean = _clean_user_request_for_a1(user_request)
+
+    user_request_display = user_request_clean.rstrip(".")
+
+    prompt_lines = [
+        "You are an expert Medical Device Regulatory Agent with RAG access to regulatory standards.",
+        f"The user wants to design: {user_request_display}." if user_request_display else "The user wants to design:.",
+        "Extract critical safety constraints, target pressures, and flow rates required for this device.",
+        "Return a structured Markdown REQUIREMENTS_DOCUMENT with sections and strict numerical parameters.",
+    ]
+    prompt_lines = [ln.strip() for ln in prompt_lines if ln and ln.strip()]
+    prompt_lines = _dedupe_lines_keep_order(prompt_lines)
+    agent1_prompt = "\n".join(prompt_lines).strip() + "\n"
+    result["agents"]["A1"]["prompt"] = agent1_prompt
+
     requirements_document = load_from_cache("A1", user_request)
     if requirements_document:
         result["agents"]["A1"]["from_cache"] = True
     else:
-        agent1_prompt = f"""
-    You are an expert Medical Device Regulatory Agent with RAG access to regulatory standards.
-    The user wants to design: {user_request}.
-    Extract critical safety constraints, target pressures, and flow rates required for this device.
-    Return a structured Markdown REQUIREMENTS_DOCUMENT with sections and strict numerical parameters.
-    """
-        result["agents"]["A1"]["prompt"] = agent1_prompt
         agent1_response = models["regulatory"].generate_content(agent1_prompt)
         requirements_document = agent1_response.text
         save_to_cache("A1", user_request, requirements_document)
@@ -380,7 +499,55 @@ def run_multi_agent_pipeline_structured(user_request: str, simulation_data=None,
     result["agents"]["A3"]["output"] = matlab_build_script
 
     if simulation_data is not None:
-        result["agents"]["A4"]["output"] = run_validation(simulation_data, iso_limits=iso_limits)
+        a4_prompt = """You are Agent A4 – Validation & Verification Agent for a safety-critical ICU Ventilator Digital Twin.
+
+Your job is to:
+
+1. Analyze MATLAB simulation results.
+2. Compare performance metrics against ISO safety limits.
+3. Decide PASS or FAIL.
+4. Return a structured JSON validation report.
+5. Do NOT redesign the system.
+6. Do NOT generate architecture.
+7. Only validate.
+
+Apply:
+
+Peak Pressure ≤ ISO max pressure
+Overshoot ≤ ISO max overshoot
+Settling Time ≤ ISO max settling
+Steady State Error ≤ ISO max SSE
+Tidal Volume Error ≤ ISO limit
+Flow Rate ≤ ISO limit
+
+If ALL conditions satisfied → SUCCESS
+If ANY condition violated → FAIL
+
+Return ONLY this JSON structure:
+
+{
+  "validation_status": "SUCCESS",
+  "metrics_summary": {
+    "peak_pressure_check": "PASS",
+    "overshoot_check": "PASS",
+    "settling_time_check": "PASS",
+    "steady_state_error_check": "PASS",
+    "tidal_volume_check": "PASS",
+    "flow_rate_check": "PASS"
+  },
+  "overall_safety": "ICU Ventilator design complies with ISO safety limits.",
+  "certification_ready": true
+}
+"""
+        result["agents"]["A4"]["prompt"] = a4_prompt
+
+        sim_results = None
+        if isinstance(simulation_data, dict):
+            sim_results = simulation_data.get("simulation_results")
+        if sim_results is not None:
+            result["agents"]["A4"]["output"] = run_validation_report(sim_results, iso_limits or {})
+        else:
+            result["agents"]["A4"]["output"] = run_validation(simulation_data, iso_limits=iso_limits)
 
     return result
 

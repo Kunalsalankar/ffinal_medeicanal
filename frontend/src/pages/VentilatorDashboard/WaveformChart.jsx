@@ -31,7 +31,8 @@ export default function WaveformChart({ title, data, yLabel, lineColor = '#22d3e
                 position: 'insideBottom',
                 offset: -8,
                 fill: 'rgba(15,23,42,0.65)',
-                fontSize: 12
+                fontSize: 16,
+                fontWeight: 700
               }}
             />
             <YAxis
@@ -42,7 +43,8 @@ export default function WaveformChart({ title, data, yLabel, lineColor = '#22d3e
                 angle: -90,
                 position: 'insideLeft',
                 fill: 'rgba(15,23,42,0.65)',
-                fontSize: 12
+                fontSize: 16,
+                fontWeight: 700
               }}
             />
             <Tooltip

@@ -33,7 +33,8 @@ export default function PvLoopChart({ title = 'PRESSURE–VOLUME LOOP', data }) 
                 position: 'insideBottom',
                 offset: -10,
                 fill: 'rgba(15,23,42,0.65)',
-                fontSize: 12
+                fontSize: 16,
+                fontWeight: 700
               }}
             />
             <YAxis
@@ -42,7 +43,7 @@ export default function PvLoopChart({ title = 'PRESSURE–VOLUME LOOP', data }) 
               domain={['dataMin', 'dataMax']}
               stroke="rgba(15, 23, 42, 0.70)"
               tick={{ fontSize: 12 }}
-              label={{ value: 'Volume (mL)', angle: -90, position: 'insideLeft', fill: 'rgba(15,23,42,0.65)', fontSize: 12 }}
+              label={{ value: 'Volume (mL)', angle: -90, position: 'insideLeft', fill: 'rgba(15,23,42,0.65)', fontSize: 16, fontWeight: 700 }}
             />
             <Tooltip
               formatter={(v, name) => [v, name === 'x' ? 'Pressure' : 'Volume']}

@@ -1,8 +1,12 @@
-export async function runPipeline(userRequest) {
+export async function runPipeline(userRequest, { simulation_data = null, iso_limits = null } = {}) {
   const res = await fetch('/api/run', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ user_request: userRequest })
+    body: JSON.stringify({
+      user_request: userRequest,
+      simulation_data,
+      iso_limits
+    })
   })
 
   if (!res.ok) {

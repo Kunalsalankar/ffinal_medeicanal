@@ -223,7 +223,7 @@ export default function Dashboard() {
     }
 
     return {
-      title: 'Medical Device Design Health Report',
+      title: 'Medical Device Design Report',
       deviceName: 'ICU Mechanical Ventilator (Digital Twin)',
       version: 'v2.4',
       date,
@@ -256,6 +256,123 @@ export default function Dashboard() {
     }
   }, [])
 
+  const complianceTracker = useMemo(
+    () => ({
+      title: 'Regulatory Compliance Tracker',
+      subtitle: 'Real-time digital twin verification of ISO 80601-2-12 and supplemental device standards.',
+      rows: [
+        {
+          standard: 'ISO 80601-2-12',
+          parameter: 'Inspiratory Pressure',
+          constraint: '< 60 cmH2O',
+          simulated: '42 cmH2O',
+          status: 'PASS'
+        },
+        {
+          standard: 'ISO 80601-2-12',
+          parameter: 'Expiratory Resistance',
+          constraint: '< 6 cmH2O',
+          simulated: '5.1 cmH2O',
+          status: 'PASS'
+        },
+        {
+          standard: 'ISO 13485:2016',
+          parameter: 'Risk Management Analysis',
+          constraint: 'Required Documentation',
+          simulated: 'Missing File Path',
+          status: 'FAIL'
+        },
+        {
+          standard: 'IEC 60601-1',
+          parameter: 'Leakage Current',
+          constraint: '< 500 µA',
+          simulated: '120 µA',
+          status: 'PASS'
+        },
+        {
+          standard: 'ISO 80601-2-12',
+          parameter: 'O2 Concentration Accuracy',
+          constraint: '± 3% volume',
+          simulated: '+ 4.2% volume',
+          status: 'FAIL'
+        },
+        {
+          standard: 'ISO 14971:2019',
+          parameter: 'FMEA Matrix',
+          constraint: 'Risk Score < 12',
+          simulated: '8.5 Average',
+          status: 'PASS'
+        }
+      ]
+    }),
+    []
+  )
+
+  const bom = useMemo(
+    () => ({
+      title: 'Bill of Materials',
+      subtitle:
+        'AI-optimized component selection for medical device engineering, regulatory compliance (ISO 13485), and long-term reliability.',
+      totals: {
+        totalComponents: 42,
+        systemMtbf: '1.2M hrs',
+        estimatedCost: '₹4,150',
+        complianceScore: 92
+      },
+      rows: [
+        {
+          partId: 'P-101',
+          component: 'High-Flow Solenoid',
+          category: 'Pneumatic',
+          model: 'Bürkert 6013',
+          mtbf: '850k hrs',
+          status: 'Compliant'
+        },
+        {
+          partId: 'E-284',
+          component: 'Micro-Controller',
+          category: 'Electronic',
+          model: 'STM32H7',
+          mtbf: '1.5M hrs',
+          status: 'Compliant'
+        },
+        {
+          partId: 'P-105',
+          component: 'Pressure Regulator',
+          category: 'Pneumatic',
+          model: 'SMC IR2000',
+          mtbf: '920k hrs',
+          status: 'Compliant'
+        },
+        {
+          partId: 'E-112',
+          component: 'NTC Thermistor',
+          category: 'Electronic',
+          model: 'Vishay NTCL',
+          mtbf: '2.0M hrs',
+          status: 'Compliant'
+        },
+        {
+          partId: 'S-502',
+          component: 'Pressure Sensor',
+          category: 'Mechanical',
+          model: 'Honeywell ABP',
+          mtbf: '620k hrs',
+          status: 'Compliant'
+        },
+        {
+          partId: 'M-888',
+          component: 'Stepper Motor',
+          category: 'Mechanical',
+          model: 'NEMA 17',
+          mtbf: '45k hrs',
+          status: 'Compliant'
+        }
+      ]
+    }),
+    []
+  )
+
   function runSimulation() {
     setSimPulse(3)
     window.setTimeout(() => setSimPulse(0), 1200)
@@ -268,7 +385,11 @@ export default function Dashboard() {
         ? 'Dashboard'
         : activeView === 'whatif'
           ? 'What-If Analysis'
-          : 'Health Report'
+          : activeView === 'report'
+            ? 'Medical Device Design Report'
+            : activeView === 'compliance'
+              ? 'Compliance Tracker'
+              : 'Bill of Materials'
     document.title = `Ventilator - ${suffix}`
     window.setTimeout(() => {
       window.print()
@@ -302,7 +423,21 @@ export default function Dashboard() {
           className={`vdTab ${activeView === 'report' ? 'vdTab--active' : ''}`}
           onClick={() => setActiveView('report')}
         >
-          Health Report
+          Medical Device Design Report
+        </button>
+        <button
+          type="button"
+          className={`vdTab ${activeView === 'compliance' ? 'vdTab--active' : ''}`}
+          onClick={() => setActiveView('compliance')}
+        >
+          Compliance
+        </button>
+        <button
+          type="button"
+          className={`vdTab ${activeView === 'bom' ? 'vdTab--active' : ''}`}
+          onClick={() => setActiveView('bom')}
+        >
+          BOM
         </button>
       </div>
 
@@ -650,6 +785,135 @@ export default function Dashboard() {
             </div>
             <div className="vdDlHint">Exports are demo placeholders for PPT. Connect these to your backend later if needed.</div>
           </div>
+          </div>
+        </div>
+      ) : null}
+
+      {activeView === 'compliance' ? (
+        <div className="vdReport">
+          <div className="vdReportHeader">
+            <div className="vdReportHeaderLeft">
+              <div className="vdReportH1">{complianceTracker.title}</div>
+              <div className="vdReportText">{complianceTracker.subtitle}</div>
+            </div>
+            <div className="vdReportHeaderRight">
+              <div className="vdReportStatus">
+                <div className="vdReportStatusLabel">Run</div>
+                <StatusBadge label="Simulation" tone="ok" />
+                <div className="vdReportStatusSub">Latest verification snapshot</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="vdReportGrid">
+            <div className="vdReportCard">
+              <SectionTitle>ISO Standards</SectionTitle>
+              <div className="vdTableWrap">
+                <table className="vdTable">
+                  <thead>
+                    <tr>
+                      <th>Regulatory Standard</th>
+                      <th>Parameter</th>
+                      <th>Constraint</th>
+                      <th>Simulated Result</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {complianceTracker.rows.map((r, idx) => (
+                      <tr key={`${r.standard}-${r.parameter}-${idx}`}>
+                        <td className="vdTdStrong">{r.standard}</td>
+                        <td>{r.parameter}</td>
+                        <td>{r.constraint}</td>
+                        <td>{r.simulated}</td>
+                        <td>
+                          <StatusBadge label={r.status} tone={r.status === 'PASS' ? 'ok' : 'crit'} />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {activeView === 'bom' ? (
+        <div className="vdReport">
+          <div className="vdReportHeader">
+            <div className="vdReportHeaderLeft">
+              <div className="vdReportH1">{bom.title}</div>
+              <div className="vdReportText">{bom.subtitle}</div>
+              <div className="vdReportMeta">
+                <div className="vdReportMetaItem">
+                  <span className="vdReportMetaKey">Total Components</span>
+                  <span className="vdReportMetaVal">{bom.totals.totalComponents}</span>
+                </div>
+                <div className="vdReportMetaItem">
+                  <span className="vdReportMetaKey">System MTBF</span>
+                  <span className="vdReportMetaVal">{bom.totals.systemMtbf}</span>
+                </div>
+                <div className="vdReportMetaItem">
+                  <span className="vdReportMetaKey">Estimated BOM Cost</span>
+                  <span className="vdReportMetaVal">{bom.totals.estimatedCost}</span>
+                </div>
+                <div className="vdReportMetaItem">
+                  <span className="vdReportMetaKey">Compliance Score</span>
+                  <span className="vdReportMetaVal">{bom.totals.complianceScore}%</span>
+                </div>
+              </div>
+            </div>
+            <div className="vdReportHeaderRight">
+              <ScoreRing value={bom.totals.complianceScore} />
+              <div className="vdReportStatus">
+                <div className="vdReportStatusLabel">Status</div>
+                <StatusBadge label="Compliant" tone="ok" />
+                <div className="vdReportStatusSub">BOM health snapshot</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="vdReportGrid">
+            <div className="vdReportCard">
+              <SectionTitle>Component List</SectionTitle>
+              <div className="vdTableWrap">
+                <table className="vdTable">
+                  <thead>
+                    <tr>
+                      <th>Part ID</th>
+                      <th>Component Name</th>
+                      <th>Category</th>
+                      <th>Selected COTS Model</th>
+                      <th>Est. MTBF</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {bom.rows.map(r => (
+                      <tr key={r.partId}>
+                        <td className="vdTdStrong">{r.partId}</td>
+                        <td>{r.component}</td>
+                        <td>
+                          <StatusBadge
+                            label={r.category}
+                            tone={r.category === 'Pneumatic' ? 'ok' : r.category === 'Electronic' ? 'warn' : 'crit'}
+                          />
+                        </td>
+                        <td>{r.model}</td>
+                        <td>{r.mtbf}</td>
+                        <td>
+                          <StatusBadge
+                            label={r.status}
+                            tone={r.status === 'Compliant' ? 'ok' : r.status === 'Review' ? 'warn' : 'crit'}
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       ) : null}

@@ -17,20 +17,30 @@ function tryPrettyJson(text) {
   }
 }
 
-function AgentCard({ title, data, onOpenFullscreen }) {
+function formatAny(value) {
+  if (value == null) return ''
+  if (typeof value === 'string') return tryPrettyJson(value) ?? value
+  try {
+    return JSON.stringify(value, null, 2)
+  } catch {
+    return String(value)
+  }
+}
+
+function AgentCard({ agentKey, title, data, onOpenFullscreen }) {
   const [open, setOpen] = useState(true)
   const prompt = data?.prompt
   const output = data?.output
   const fromCache = Boolean(data?.from_cache)
   const type = data?.type
 
-  const promptFormatted = tryPrettyJson(prompt) ?? prompt
-  const outputFormatted = tryPrettyJson(output) ?? output
+  const promptFormatted = formatAny(prompt)
+  const outputFormatted = formatAny(output)
 
   const outputIsMarkdown = type === 'markdown'
 
   return (
-    <section className="card">
+    <section className={`card agentCard agentCard--${agentKey}`}>
       <header className="cardHeader">
         <div className="cardHeaderLeft">
           <div className="cardTitleRow">
@@ -58,7 +68,8 @@ function AgentCard({ title, data, onOpenFullscreen }) {
                       title: `${title} — Prompt`,
                       kind: 'prompt',
                       content: promptFormatted || '—',
-                      isMarkdown: false
+                      isMarkdown: false,
+                      agentKey
                     })
                   }
                 >
@@ -78,7 +89,8 @@ function AgentCard({ title, data, onOpenFullscreen }) {
                       title: `${title} — Output`,
                       kind: 'output',
                       content: outputFormatted || '—',
-                      isMarkdown: outputIsMarkdown
+                      isMarkdown: outputIsMarkdown,
+                      agentKey
                     })
                   }
                 >
@@ -110,6 +122,33 @@ export default function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [result, setResult] = useState(null)
+
+  const a4SimulationData = useMemo(
+    () => ({
+      simulation_results: {
+        target_pressure: 30,
+        peak_pressure: 32,
+        overshoot_percent: 6,
+        settling_time_sec: 1.4,
+        steady_state_error_percent: 2,
+        tidal_volume_error_percent: 4,
+        max_flow_rate_L_min: 95
+      }
+    }),
+    []
+  )
+
+  const a4IsoLimits = useMemo(
+    () => ({
+      max_pressure_cmH2O: 40,
+      max_overshoot_percent: 10,
+      max_settling_time_sec: 2,
+      max_steady_state_error_percent: 5,
+      max_tidal_volume_error_percent: 10,
+      max_flow_rate_L_min: 120
+    }),
+    []
+  )
 
   function downloadPdf() {
     const prevTitle = document.title
@@ -147,7 +186,10 @@ export default function App() {
     setLoading(true)
     setResult(null)
     try {
-      const r = await runPipeline(userRequest.trim())
+      const r = await runPipeline(userRequest.trim(), {
+        simulation_data: a4SimulationData,
+        iso_limits: a4IsoLimits
+      })
       setResult(r)
     } catch (err) {
       setError(err?.message || String(err))
@@ -263,6 +305,7 @@ export default function App() {
             ? agents.map(a => (
                 <AgentCard
                   key={a.key}
+                  agentKey={a.key}
                   title={a.title}
                   data={a.data}
                   onOpenFullscreen={setFullscreen}
@@ -279,8 +322,8 @@ export default function App() {
 
       {fullscreen ? (
         <div className="fsOverlay" role="dialog" aria-modal="true">
-          <div className="fsModal">
-            <div className="fsHeader">
+          <div className={`fsModal ${fullscreen.agentKey ? `fsModal--${fullscreen.agentKey}` : ''}`}>
+            <div className={`fsHeader ${fullscreen.agentKey ? `fsHeader--${fullscreen.agentKey}` : ''}`}>
               <div className="fsTitle">{fullscreen.title}</div>
               <button className="fsClose" type="button" onClick={() => setFullscreen(null)}>
                 Close
